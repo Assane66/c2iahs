@@ -69,6 +69,7 @@ type Payment = {
   status: 'Payé' | 'En attente' | 'En retard';
   amount: string;
   date: string;
+  month: string; // YYYY-MM
 };
 
 type Student = {
@@ -87,6 +88,17 @@ export default function PaymentsPage() {
   const [selectedStudentName, setSelectedStudentName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const months = [
+    { value: '01', label: 'Janvier' }, { value: '02', label: 'Février' },
+    { value: '03', label: 'Mars' }, { value: '04', label: 'Avril' },
+    { value: '05', label: 'Mai' }, { value: '06', label: 'Juin' },
+    { value: '07', label: 'Juillet' }, { value: '08', label: 'Août' },
+    { value: '09', label: 'Septembre' }, { value: '10', label: 'Octobre' },
+    { value: '11', label: 'Novembre' }, { value: '12', label: 'Décembre' }
+  ];
 
   const fetchPaymentsAndStudents = async () => {
     setLoading(true);
@@ -96,6 +108,7 @@ export default function PaymentsPage() {
         id: doc.id,
         ...doc.data()
       })) as Payment[];
+      paymentsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setPayments(paymentsList);
 
       const studentsSnapshot = await getDocs(collection(db, 'students'));
@@ -124,21 +137,25 @@ export default function PaymentsPage() {
   const handleAddPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
+    const year = (form.elements.namedItem('year') as HTMLSelectElement)?.value;
+    const month = (form.elements.namedItem('month') as HTMLSelectElement)?.value;
+    
+    if (!selectedStudentName) {
+        toast({ title: 'Erreur', description: "Veuillez sélectionner un élève.", variant: 'destructive' });
+        return;
+    }
+    if (!year || !month) {
+        toast({ title: 'Erreur', description: "Veuillez sélectionner un mois et une année.", variant: 'destructive' });
+        return;
+    }
+
     const newPaymentData = {
       studentName: selectedStudentName,
       amount: (form.elements.namedItem('amount') as HTMLInputElement)?.value,
       date: (form.elements.namedItem('date') as HTMLInputElement)?.value,
-      status: (form.elements.namedItem('status') as HTMLInputElement)?.value,
+      status: (form.elements.namedItem('status') as HTMLInputElement)?.value as 'Payé' | 'En attente' | 'En retard',
+      month: `${year}-${month}`,
     };
-
-    if (!newPaymentData.studentName) {
-        toast({
-            title: 'Erreur',
-            description: "Veuillez sélectionner un élève.",
-            variant: 'destructive',
-        });
-        return;
-    }
 
     try {
       await addDoc(collection(db, 'payments'), newPaymentData);
@@ -167,8 +184,7 @@ export default function PaymentsPage() {
         title: 'Succès',
         description: 'Paiement supprimé avec succès !',
       });
-      const newPayments = payments.filter(p => p.id !== id);
-      setPayments(newPayments);
+      fetchPaymentsAndStudents();
     } catch (error) {
       console.error("Erreur lors de la suppression du paiement: ", error);
       toast({
@@ -181,20 +197,14 @@ export default function PaymentsPage() {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'Payé':
-        return 'default';
-      case 'En retard':
-        return 'destructive';
-      case 'En attente':
-      default:
-        return 'secondary';
+      case 'Payé': return 'default';
+      case 'En retard': return 'destructive';
+      case 'En attente': default: return 'secondary';
     }
   };
-
+  
   const getStatusBadgeClass = (status: string) => {
-    if (status === 'Payé') {
-      return 'bg-green-600 hover:bg-green-700';
-    }
+    if (status === 'Payé') return 'bg-green-600 hover:bg-green-700';
     return '';
   };
   
@@ -208,114 +218,72 @@ export default function PaymentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Paiements</h1>
-          <p className="text-muted-foreground">
-            Suivez et gérez les paiements des élèves.
-          </p>
+          <p className="text-muted-foreground">Suivez et gérez les paiements des élèves.</p>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) {
-            setSelectedStudentName('');
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement
-            </Button>
-          </DialogTrigger>
+        <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) { setSelectedStudentName(''); } }}>
+          <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter un Nouveau Paiement</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Ajouter un Nouveau Paiement</DialogTitle></DialogHeader>
             <form onSubmit={handleAddPayment}>
               <div className="grid gap-4 py-4">
+                {/* Student Selector */}
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="studentName" className="text-right">
-                    Nom de l'Élève
-                  </Label>
+                  <Label htmlFor="studentName" className="text-right">Élève</Label>
                    <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={comboboxOpen}
-                        className="col-span-3 w-full justify-between"
-                      >
+                      <Button variant="outline" role="combobox" aria-expanded={comboboxOpen} className="col-span-3 w-full justify-between">
                         {selectedStudentName || "Sélectionner un élève..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Rechercher un élève..." />
-                        <CommandEmpty>Aucun élève trouvé.</CommandEmpty>
-                        <CommandList>
-                           <CommandGroup>
+                      <Command><CommandInput placeholder="Rechercher un élève..." /><CommandEmpty>Aucun élève trouvé.</CommandEmpty>
+                        <CommandList><CommandGroup>
                             {students.map((student) => (
-                              <CommandItem
-                                key={student.id}
-                                value={student.name}
-                                onSelect={(currentValue) => {
-                                  setSelectedStudentName(currentValue === selectedStudentName ? "" : student.name);
-                                  setComboboxOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    selectedStudentName === student.name ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                <div className="flex flex-col">
-                                   <span>{student.name}</span>
-                                   <span className="text-xs text-muted-foreground">
-                                       ID: {student.studentId} | Classe: {student.class}
-                                   </span>
-                                </div>
+                              <CommandItem key={student.id} value={student.name} onSelect={(currentValue) => { setSelectedStudentName(currentValue === selectedStudentName ? "" : student.name); setComboboxOpen(false);}}>
+                                <Check className={cn("mr-2 h-4 w-4", selectedStudentName === student.name ? "opacity-100" : "opacity-0")}/>
+                                <div className="flex flex-col"><span>{student.name}</span><span className="text-xs text-muted-foreground">ID: {student.studentId} | Classe: {student.class}</span></div>
                               </CommandItem>
                             ))}
-                          </CommandGroup>
-                        </CommandList>
+                        </CommandGroup></CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </div>
+                {/* Month and Year Selectors */}
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">
-                    Montant
-                  </Label>
-                  <Input id="amount" name="amount" type="text" placeholder="ex: 50.00" className="col-span-3" required />
+                    <Label className="text-right">Mois de Paiement</Label>
+                    <div className="col-span-3 grid grid-cols-2 gap-2">
+                        <Select name="month" required defaultValue={(new Date().getMonth() + 1).toString().padStart(2, '0')}>
+                            <SelectTrigger><SelectValue placeholder="Mois" /></SelectTrigger>
+                            <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <Select name="year" required defaultValue={currentYear.toString()}>
+                            <SelectTrigger><SelectValue placeholder="Année" /></SelectTrigger>
+                            <SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                        </Select>
+                    </div>
                 </div>
+                {/* Amount */}
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-right">Montant</Label>
+                  <Input id="amount" name="amount" type="number" placeholder="ex: 5000" className="col-span-3" required />
+                </div>
+                {/* Status */}
                  <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">
-                    Statut
-                  </Label>
+                  <Label htmlFor="status" className="text-right">Statut</Label>
                    <Select name="status" required>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Sélectionner un statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Payé">Payé</SelectItem>
-                      <SelectItem value="En attente">En attente</SelectItem>
-                      <SelectItem value="En retard">En retard</SelectItem>
-                    </SelectContent>
+                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner un statut" /></SelectTrigger>
+                    <SelectContent><SelectItem value="Payé">Payé</SelectItem><SelectItem value="En attente">En attente</SelectItem><SelectItem value="En retard">En retard</SelectItem></SelectContent>
                   </Select>
                 </div>
+                {/* Date */}
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="date" className="text-right">
-                    Date
-                  </Label>
-                  <Input id="date" name="date" type="date" className="col-span-3" required />
+                  <Label htmlFor="date" className="text-right">Date</Label>
+                  <Input id="date" name="date" type="date" className="col-span-3" defaultValue={new Date().toISOString().split('T')[0]} required />
                 </div>
               </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Annuler
-                  </Button>
-                </DialogClose>
-                <Button type="submit">Ajouter</Button>
-              </DialogFooter>
+              <DialogFooter><DialogClose asChild><Button type="button" variant="secondary">Annuler</Button></DialogClose><Button type="submit">Ajouter</Button></DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
@@ -326,19 +294,11 @@ export default function PaymentsPage() {
            <div className="flex items-center justify-between gap-4">
             <div>
               <CardTitle>Historique des Paiements</CardTitle>
-              <CardDescription>
-                Un enregistrement de tous les paiements reçus.
-              </CardDescription>
+              <CardDescription>Un enregistrement de tous les paiements reçus.</CardDescription>
             </div>
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Rechercher par nom, ID..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <Input type="search" placeholder="Rechercher par nom..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
@@ -347,68 +307,32 @@ export default function PaymentsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nom de l'Élève</TableHead>
-                <TableHead>ID de Transaction</TableHead>
+                <TableHead>Mois Payé</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Montant</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+                <TableHead><span className="sr-only">Actions</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Chargement...
-                  </TableCell>
-                </TableRow>
+              {loading ? ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Chargement...</TableCell></TableRow>
               ) : filteredPayments.length > 0 ? (
                 filteredPayments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell className="font-medium">
-                      {payment.studentName}
-                    </TableCell>
-                    <TableCell>{payment.id}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={getStatusBadgeVariant(payment.status)}
-                        className={getStatusBadgeClass(payment.status)}
-                      >
-                        {payment.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{payment.amount}</TableCell>
+                    <TableCell className="font-medium">{payment.studentName}</TableCell>
+                    <TableCell>{payment.month}</TableCell>
+                    <TableCell><Badge variant={getStatusBadgeVariant(payment.status)} className={getStatusBadgeClass(payment.status)}>{payment.status}</Badge></TableCell>
+                    <TableCell>{new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA</TableCell>
                     <TableCell>{payment.date}</TableCell>
                     <TableCell>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                           <DropdownMenuItem onClick={() => handleDeletePayment(payment.id)}>
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
+                        <DropdownMenuTrigger asChild><Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Toggle menu</span></Button></DropdownMenuTrigger>
+                        <DropdownMenuContent align="end"><DropdownMenuLabel>Actions</DropdownMenuLabel><DropdownMenuItem onClick={() => handleDeletePayment(payment.id)}>Supprimer</DropdownMenuItem></DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Aucun paiement trouvé.
-                  </TableCell>
-                </TableRow>
-              )}
+              ) : ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Aucun paiement trouvé.</TableCell></TableRow> )}
             </TableBody>
           </Table>
         </CardContent>
@@ -416,3 +340,5 @@ export default function PaymentsPage() {
     </div>
   );
 }
+
+    
