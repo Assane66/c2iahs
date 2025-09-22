@@ -41,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Icons.logo className="size-8 text-primary" />
             <span className="text-lg font-semibold text-sidebar-foreground">
-              SchoolZenith
+              Institut islamique Imame Al Housseynou Sow
             </span>
           </div>
         </SidebarHeader>
