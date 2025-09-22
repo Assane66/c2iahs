@@ -30,31 +30,31 @@ export default function PaymentsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Paiements</h1>
           <p className="text-muted-foreground">
-            Track and manage student payments.
+            Suivez et gérez les paiements des élèves.
           </p>
         </div>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Payment
+          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Payment History</CardTitle>
+          <CardTitle>Historique des Paiements</CardTitle>
           <CardDescription>
-            A record of all payments received.
+            Un enregistrement de tous les paiements reçus.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Transaction ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Amount</TableHead>
+                <TableHead>Nom de l'Élève</TableHead>
+                <TableHead>ID de Transaction</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Montant</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
@@ -79,7 +79,7 @@ export default function PaymentsPage() {
                           : ''
                       }
                     >
-                      {payment.status}
+                      {payment.status === 'Paid' ? 'Payé' : payment.status === 'Pending' ? 'En attente' : 'En retard'}
                     </Badge>
                   </TableCell>
                   <TableCell>{payment.amount}</TableCell>
@@ -100,9 +100,9 @@ export default function PaymentsPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>
                           <FileDown className="mr-2 h-4 w-4" />
-                          Download Receipt
+                          Télécharger le Reçu
                         </DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem>Voir les Détails</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -48,20 +48,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuButton
                 href="/dashboard"
                 isActive={isActive('/dashboard')}
-                tooltip="Dashboard"
+                tooltip="Tableau de Bord"
               >
                 <LayoutDashboard />
-                Dashboard
+                Tableau de Bord
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 href="/students"
                 isActive={isActive('/students')}
-                tooltip="Students"
+                tooltip="Élèves"
               >
                 <Users />
-                Students
+                Élèves
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -78,20 +78,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuButton
                 href="/payments"
                 isActive={isActive('/payments')}
-                tooltip="Payments"
+                tooltip="Paiements"
               >
                 <CreditCard />
-                Payments
+                Paiements
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 href="/users"
                 isActive={isActive('/users')}
-                tooltip="Users"
+                tooltip="Utilisateurs"
               >
                 <UserCog />
-                Users
+                Utilisateurs
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

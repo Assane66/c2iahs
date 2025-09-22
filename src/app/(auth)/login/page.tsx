@@ -35,23 +35,23 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
-        title: 'Success',
-        description: 'Logged in successfully!',
+        title: 'Succès',
+        description: 'Connecté avec succès !',
       });
       router.push('/dashboard');
     } catch (error: any) {
-      let errorMessage = 'An unknown error occurred.';
+      let errorMessage = 'Une erreur inconnue est survenue.';
       switch (error.code) {
         case 'auth/invalid-email':
-          errorMessage = 'Please enter a valid email address.';
+          errorMessage = 'Veuillez entrer une adresse e-mail valide.';
           break;
         case 'auth/user-not-found':
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-          errorMessage = 'Invalid email or password. Please try again.';
+          errorMessage = 'Email ou mot de passe invalide. Veuillez réessayer.';
           break;
         default:
-          errorMessage = 'Failed to log in. Please try again later.';
+          errorMessage = 'Échec de la connexion. Veuillez réessayer plus tard.';
           break;
       }
       setError(errorMessage);
@@ -69,7 +69,7 @@ export default function LoginPage() {
             </div>
           <CardTitle className="text-2xl">SchoolZenith Admin</CardTitle>
           <CardDescription>
-            Enter your credentials to access the admin panel
+            Entrez vos identifiants pour accéder au panneau d'administration
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             {error && (
                <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Login Failed</AlertTitle>
+                  <AlertTitle>Échec de la Connexion</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
@@ -94,7 +94,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
@@ -107,10 +107,10 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Connexion...' : 'Se connecter'}
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Forgot your password? Contact support.
+              Mot de passe oublié ? Contactez le support.
             </p>
           </CardFooter>
         </form>

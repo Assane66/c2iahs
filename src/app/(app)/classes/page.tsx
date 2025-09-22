@@ -30,28 +30,28 @@ export default function ClassesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground">Manage your school's classes.</p>
+          <p className="text-muted-foreground">Gérez les classes de votre école.</p>
         </div>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Class
+          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une Classe
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Class List</CardTitle>
+          <CardTitle>Liste des Classes</CardTitle>
           <CardDescription>
-            A list of all classes in the school.
+            Une liste de toutes les classes de l'école.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Class Name</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Teacher</TableHead>
-                <TableHead>No. of Students</TableHead>
+                <TableHead>Nom de la Classe</TableHead>
+                <TableHead>Niveau</TableHead>
+                <TableHead>Enseignant</TableHead>
+                <TableHead>Nbr. d'Élèves</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -78,9 +78,9 @@ export default function ClassesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>View Students</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem>Voir les Élèves</DropdownMenuItem>
+                        <DropdownMenuItem>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

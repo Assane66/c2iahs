@@ -30,30 +30,30 @@ export default function UsersPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Utilisateurs</h1>
           <p className="text-muted-foreground">
-            Manage teacher and administrator accounts.
+            Gérez les comptes des enseignants et des administrateurs.
           </p>
         </div>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add User
+          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Utilisateur
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>User Accounts</CardTitle>
+          <CardTitle>Comptes Utilisateurs</CardTitle>
           <CardDescription>
-            A list of all users with access to the system.
+            Une liste de tous les utilisateurs ayant accès au système.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Nom</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
+                <TableHead>Rôle</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -70,7 +70,7 @@ export default function UsersPage() {
                         user.role === 'Admin' ? 'destructive' : 'secondary'
                       }
                     >
-                      {user.role}
+                      {user.role === 'Admin' ? 'Admin' : 'Enseignant'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -87,9 +87,9 @@ export default function UsersPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Change Role</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem>Changer le Rôle</DropdownMenuItem>
+                        <DropdownMenuItem>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -30,31 +30,31 @@ export default function StudentsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Students</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Élèves</h1>
           <p className="text-muted-foreground">
-            Manage your student roster.
+            Gérez votre liste d'élèves.
           </p>
         </div>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Student
+          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Élève
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Student List</CardTitle>
+          <CardTitle>Liste des Élèves</CardTitle>
           <CardDescription>
-            A list of all students in the school.
+            Une liste de tous les élèves de l'école.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Nom</TableHead>
                 <TableHead>ID</TableHead>
-                <TableHead>Class</TableHead>
-                <TableHead>Date of Birth</TableHead>
+                <TableHead>Classe</TableHead>
+                <TableHead>Date de Naissance</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
@@ -83,8 +83,8 @@ export default function StudentsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
