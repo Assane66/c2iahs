@@ -35,18 +35,27 @@ type Student = {
 
 type Payment = {
   studentName: string;
+  date: string; // ex: "2024-09-23"
 };
 
 export default function UnpaidStudentsPage() {
   const [unpaidStudents, setUnpaidStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentMonth, setCurrentMonth] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchUnpaidStudents = async () => {
       setLoading(true);
       try {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // 0-11
+        
+        const monthName = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(today);
+        setCurrentMonth(`${monthName} ${year}`);
+
         // 1. Fetch all students
         const studentsSnapshot = await getDocs(collection(db, 'students'));
         const allStudents = studentsSnapshot.docs.map(doc => ({
@@ -58,11 +67,19 @@ export default function UnpaidStudentsPage() {
         const paymentsSnapshot = await getDocs(collection(db, 'payments'));
         const payments = paymentsSnapshot.docs.map(doc => doc.data() as Payment);
 
-        // 3. Create a set of student names who have paid
-        const paidStudentNames = new Set(payments.map(p => p.studentName));
+        // 3. Create a set of student names who have paid THIS MONTH
+        const paidThisMonthStudentNames = new Set(
+          payments
+            .filter(p => {
+              if (!p.date) return false;
+              const paymentDate = new Date(p.date);
+              return paymentDate.getFullYear() === year && paymentDate.getMonth() === month;
+            })
+            .map(p => p.studentName)
+        );
         
-        // 4. Filter students who are not in the paid set
-        const unpaid = allStudents.filter(student => !paidStudentNames.has(student.name));
+        // 4. Filter students who are not in the "paid this month" set
+        const unpaid = allStudents.filter(student => !paidThisMonthStudentNames.has(student.name));
         
         unpaid.sort((a, b) => a.studentId - b.studentId);
         setUnpaidStudents(unpaid);
@@ -90,9 +107,9 @@ export default function UnpaidStudentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Paiements Non Effectués</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Impayés du Mois</h1>
         <p className="text-muted-foreground">
-          Liste des élèves qui n'ont pas encore effectué de paiement.
+          Liste des élèves n'ayant pas encore payé pour le mois de {currentMonth}.
         </p>
       </div>
 
@@ -100,9 +117,9 @@ export default function UnpaidStudentsPage() {
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle>Élèves sans Paiement</CardTitle>
+              <CardTitle>Élèves sans Paiement ce Mois-ci</CardTitle>
               <CardDescription>
-                Un total de {filteredUnpaidStudents.length} élèves trouvés sans paiement enregistré.
+                Un total de {filteredUnpaidStudents.length} élèves trouvés sans paiement pour {currentMonth}.
               </CardDescription>
             </div>
             <div className="relative w-full max-w-sm">
@@ -146,7 +163,7 @@ export default function UnpaidStudentsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
-                    Tous les élèves ont effectué un paiement.
+                    Tous les élèves ont payé pour ce mois-ci.
                   </TableCell>
                 </TableRow>
               )}
