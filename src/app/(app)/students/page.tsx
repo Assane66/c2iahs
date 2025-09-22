@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 type Student = {
-  id: string;
+  id: string; // Firestore document ID
+  studentId: number; // Numeric ID
   name: string;
   class: string;
   dob: string;
@@ -63,6 +64,8 @@ export default function StudentsPage() {
         id: doc.id,
         ...doc.data()
       })) as Student[];
+      // Sort students by their numeric ID
+      studentsList.sort((a, b) => a.studentId - b.studentId);
       setStudents(studentsList);
     } catch (error) {
       console.error("Erreur lors de la récupération des élèves: ", error);
@@ -90,24 +93,46 @@ export default function StudentsPage() {
       pob: (form.elements.namedItem('pob') as HTMLInputElement)?.value,
       contact: (form.elements.namedItem('contact') as HTMLInputElement)?.value,
     };
+
     try {
-      await addDoc(collection(db, 'students'), newStudentData);
-      toast({
-        title: 'Succès',
-        description: 'Élève ajouté avec succès !',
-      });
-      fetchStudents(); // Refresh list
-      setOpen(false);
-      form.reset();
+        // Use a transaction to get the next student ID
+        await runTransaction(db, async (transaction) => {
+            const counterRef = doc(db, 'counters', 'students');
+            const counterDoc = await transaction.get(counterRef);
+
+            let nextId = 1;
+            if (counterDoc.exists()) {
+                nextId = counterDoc.data().currentId + 1;
+            }
+
+            // Create the new student document with the numeric ID
+            const newStudentRef = doc(collection(db, 'students'));
+            transaction.set(newStudentRef, {
+                ...newStudentData,
+                studentId: nextId,
+            });
+
+            // Update the counter
+            transaction.set(counterRef, { currentId: nextId }, { merge: true });
+        });
+        
+        toast({
+            title: 'Succès',
+            description: 'Élève ajouté avec succès !',
+        });
+        fetchStudents(); // Refresh list
+        setOpen(false);
+        form.reset();
     } catch (error) {
-      console.error("Erreur lors de l'ajout de l'élève: ", error);
-      toast({
-        title: 'Erreur',
-        description: "Impossible d'ajouter l'élève.",
-        variant: 'destructive',
-      });
+        console.error("Erreur lors de l'ajout de l'élève: ", error);
+        toast({
+            title: 'Erreur',
+            description: "Impossible d'ajouter l'élève.",
+            variant: 'destructive',
+        });
     }
   };
+
 
   const handleDeleteStudent = async (id: string) => {
     try {
@@ -203,8 +228,8 @@ export default function StudentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
                 <TableHead>ID</TableHead>
+                <TableHead>Nom</TableHead>
                 <TableHead>Classe</TableHead>
                 <TableHead>Date de Naissance</TableHead>
                 <TableHead>Lieu de Naissance</TableHead>
@@ -224,8 +249,8 @@ export default function StudentsPage() {
               ) : students.length > 0 ? (
                 students.map((student) => (
                   <TableRow key={student.id}>
+                    <TableCell>{student.studentId}</TableCell>
                     <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell>{student.id}</TableCell>
                     <TableCell>{student.class}</TableCell>
                     <TableCell>{student.dob}</TableCell>
                     <TableCell>{student.pob}</TableCell>
