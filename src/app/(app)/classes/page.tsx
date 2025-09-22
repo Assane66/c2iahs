@@ -19,9 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Search } from 'lucide-react';
 
 type ClassInfo = {
   name: string;
@@ -31,6 +32,7 @@ type ClassInfo = {
 export default function ClassesPage() {
   const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,6 +71,10 @@ export default function ClassesPage() {
     fetchClasses();
   }, [toast]);
 
+  const filteredClasses = classes.filter(c =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -82,10 +88,24 @@ export default function ClassesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Liste des Classes</CardTitle>
-          <CardDescription>
-            Chaque classe et le nombre d'élèves correspondant.
-          </CardDescription>
+           <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Liste des Classes</CardTitle>
+              <CardDescription>
+                Chaque classe et le nombre d'élèves correspondant.
+              </CardDescription>
+            </div>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher une classe..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -103,8 +123,8 @@ export default function ClassesPage() {
                     Chargement...
                   </TableCell>
                 </TableRow>
-              ) : classes.length > 0 ? (
-                classes.map((c) => (
+              ) : filteredClasses.length > 0 ? (
+                filteredClasses.map((c) => (
                    <TableRow key={c.name} className="group hover:bg-muted/50">
                     <TableCell className="font-medium">
                       <Link href={`/classes/${encodeURIComponent(c.name)}`} className="hover:underline">

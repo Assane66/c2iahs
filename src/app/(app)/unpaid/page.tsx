@@ -19,7 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { Search } from 'lucide-react';
 
 type Student = {
   id: string;
@@ -38,6 +40,7 @@ type Payment = {
 export default function UnpaidStudentsPage() {
   const [unpaidStudents, setUnpaidStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,6 +82,11 @@ export default function UnpaidStudentsPage() {
     fetchUnpaidStudents();
   }, [toast]);
 
+  const filteredUnpaidStudents = unpaidStudents.filter(student =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.class.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -90,10 +98,24 @@ export default function UnpaidStudentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Élèves sans Paiement</CardTitle>
-          <CardDescription>
-            Un total de {unpaidStudents.length} élèves trouvés sans paiement enregistré.
-          </CardDescription>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Élèves sans Paiement</CardTitle>
+              <CardDescription>
+                Un total de {filteredUnpaidStudents.length} élèves trouvés sans paiement enregistré.
+              </CardDescription>
+            </div>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher un élève..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -112,8 +134,8 @@ export default function UnpaidStudentsPage() {
                     Chargement...
                   </TableCell>
                 </TableRow>
-              ) : unpaidStudents.length > 0 ? (
-                unpaidStudents.map((student) => (
+              ) : filteredUnpaidStudents.length > 0 ? (
+                filteredUnpaidStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>{student.studentId}</TableCell>
                     <TableCell className="font-medium">{student.name}</TableCell>

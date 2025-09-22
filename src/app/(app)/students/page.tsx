@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -55,6 +55,7 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   const fetchStudents = async () => {
@@ -152,6 +153,12 @@ export default function StudentsPage() {
     }
   };
   
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.class.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    String(student.studentId).includes(searchQuery)
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -219,10 +226,24 @@ export default function StudentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Liste des Élèves</CardTitle>
-          <CardDescription>
-            Une liste de tous les élèves de l'école.
-          </CardDescription>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Liste des Élèves</CardTitle>
+              <CardDescription>
+                Une liste de tous les élèves de l'école.
+              </CardDescription>
+            </div>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher par nom, classe, ID..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -246,8 +267,8 @@ export default function StudentsPage() {
                     Chargement...
                   </TableCell>
                 </TableRow>
-              ) : students.length > 0 ? (
-                students.map((student) => (
+              ) : filteredStudents.length > 0 ? (
+                filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>{student.studentId}</TableCell>
                     <TableCell className="font-medium">{student.name}</TableCell>

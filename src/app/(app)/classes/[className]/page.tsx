@@ -19,10 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 
 type Student = {
   id: string; 
@@ -43,6 +44,7 @@ type ClassDetailsPageProps = {
 export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const className = decodeURIComponent(params.className);
 
@@ -77,6 +79,10 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
     fetchStudents();
   }, [className, toast]);
 
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
@@ -96,10 +102,24 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Liste des Élèves</CardTitle>
-          <CardDescription>
-            Un total de {students.length} élèves trouvés dans la classe {className}.
-          </CardDescription>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Liste des Élèves</CardTitle>
+              <CardDescription>
+                Un total de {filteredStudents.length} élèves trouvés dans la classe {className}.
+              </CardDescription>
+            </div>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher un élève..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -119,8 +139,8 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
                     Chargement...
                   </TableCell>
                 </TableRow>
-              ) : students.length > 0 ? (
-                students.map((student) => (
+              ) : filteredStudents.length > 0 ? (
+                filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>{student.studentId}</TableCell>
                     <TableCell className="font-medium">{student.name}</TableCell>

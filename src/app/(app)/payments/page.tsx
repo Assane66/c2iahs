@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle, ChevronsUpDown, Check } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, ChevronsUpDown, Check, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,6 +85,7 @@ export default function PaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedStudentName, setSelectedStudentName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   const fetchPaymentsAndStudents = async () => {
@@ -196,6 +197,11 @@ export default function PaymentsPage() {
     }
     return '';
   };
+  
+  const filteredPayments = payments.filter(payment =>
+    payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    payment.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -317,10 +323,24 @@ export default function PaymentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Historique des Paiements</CardTitle>
-          <CardDescription>
-            Un enregistrement de tous les paiements reçus.
-          </CardDescription>
+           <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Historique des Paiements</CardTitle>
+              <CardDescription>
+                Un enregistrement de tous les paiements reçus.
+              </CardDescription>
+            </div>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher par nom, ID..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -343,8 +363,8 @@ export default function PaymentsPage() {
                     Chargement...
                   </TableCell>
                 </TableRow>
-              ) : payments.length > 0 ? (
-                payments.map((payment) => (
+              ) : filteredPayments.length > 0 ? (
+                filteredPayments.map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell className="font-medium">
                       {payment.studentName}
