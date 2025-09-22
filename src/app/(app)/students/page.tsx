@@ -43,6 +43,7 @@ type Student = {
   name: string;
   class: string;
   dob: string;
+  pob: string;
   contact: string;
 };
 
@@ -58,6 +59,7 @@ export default function StudentsPage() {
       name: (e.currentTarget.elements.namedItem('name') as HTMLInputElement)?.value,
       class: (e.currentTarget.elements.namedItem('class') as HTMLInputElement)?.value,
       dob: (e.currentTarget.elements.namedItem('dob') as HTMLInputElement)?.value,
+      pob: (e.currentTarget.elements.namedItem('pob') as HTMLInputElement)?.value,
       contact: (e.currentTarget.elements.namedItem('contact') as HTMLInputElement)?.value,
     };
     setStudents([...students, newStudent]);
@@ -108,6 +110,12 @@ export default function StudentsPage() {
                   <Input id="dob" name="dob" type="date" className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="pob" className="text-right">
+                    Lieu de Naissance
+                  </Label>
+                  <Input id="pob" name="pob" className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="contact" className="text-right">
                     Contact
                   </Label>
@@ -142,6 +150,7 @@ export default function StudentsPage() {
                 <TableHead>ID</TableHead>
                 <TableHead>Classe</TableHead>
                 <TableHead>Date de Naissance</TableHead>
+                <TableHead>Lieu de Naissance</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
@@ -156,6 +165,7 @@ export default function StudentsPage() {
                     <TableCell>{student.id}</TableCell>
                     <TableCell>{student.class}</TableCell>
                     <TableCell>{student.dob}</TableCell>
+                    <TableCell>{student.pob}</TableCell>
                     <TableCell>{student.contact}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -182,7 +192,7 @@ export default function StudentsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     Aucun élève trouvé.
                   </TableCell>
                 </TableRow>
