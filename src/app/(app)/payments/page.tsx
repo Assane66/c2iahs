@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle, FileDown } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, ChevronsUpDown, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,7 +47,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 type Payment = {
   id: string;
@@ -57,25 +71,44 @@ type Payment = {
   date: string;
 };
 
+type Student = {
+  id: string;
+  studentId: number;
+  name: string;
+  class: string;
+};
+
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [comboboxOpen, setComboboxOpen] = useState(false);
+  const [selectedStudentName, setSelectedStudentName] = useState('');
   const { toast } = useToast();
 
-  const fetchPayments = async () => {
+  const fetchPaymentsAndStudents = async () => {
+    setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, 'payments'));
-      const paymentsList = querySnapshot.docs.map(doc => ({
+      const paymentsSnapshot = await getDocs(collection(db, 'payments'));
+      const paymentsList = paymentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Payment[];
       setPayments(paymentsList);
+
+      const studentsSnapshot = await getDocs(collection(db, 'students'));
+      const studentsList = studentsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Student[];
+      setStudents(studentsList);
+
     } catch (error) {
-      console.error("Erreur lors de la récupération des paiements: ", error);
+      console.error("Erreur lors de la récupération des données: ", error);
       toast({
         title: 'Erreur',
-        description: "Impossible de charger l'historique des paiements.",
+        description: "Impossible de charger les données.",
         variant: 'destructive',
       });
     } finally {
@@ -84,27 +117,38 @@ export default function PaymentsPage() {
   };
 
   useEffect(() => {
-    fetchPayments();
+    fetchPaymentsAndStudents();
   }, []);
 
   const handleAddPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const newPaymentData = {
-      studentName: (form.elements.namedItem('studentName') as HTMLInputElement)?.value,
+      studentName: selectedStudentName,
       amount: (form.elements.namedItem('amount') as HTMLInputElement)?.value,
       date: (form.elements.namedItem('date') as HTMLInputElement)?.value,
       status: (form.elements.namedItem('status') as HTMLInputElement)?.value,
     };
+
+    if (!newPaymentData.studentName) {
+        toast({
+            title: 'Erreur',
+            description: "Veuillez sélectionner un élève.",
+            variant: 'destructive',
+        });
+        return;
+    }
+
     try {
       await addDoc(collection(db, 'payments'), newPaymentData);
       toast({
         title: 'Succès',
         description: 'Paiement ajouté avec succès !',
       });
-      fetchPayments(); // Refresh list
+      fetchPaymentsAndStudents(); // Refresh list
       setOpen(false);
       form.reset();
+      setSelectedStudentName('');
     } catch (error) {
       console.error("Erreur lors de l'ajout du paiement: ", error);
       toast({
@@ -122,7 +166,8 @@ export default function PaymentsPage() {
         title: 'Succès',
         description: 'Paiement supprimé avec succès !',
       });
-      fetchPayments(); // Refresh list
+      const newPayments = payments.filter(p => p.id !== id);
+      setPayments(newPayments);
     } catch (error) {
       console.error("Erreur lors de la suppression du paiement: ", error);
       toast({
@@ -161,7 +206,12 @@ export default function PaymentsPage() {
             Suivez et gérez les paiements des élèves.
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) {
+            setSelectedStudentName('');
+          }
+        }}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement
@@ -177,7 +227,52 @@ export default function PaymentsPage() {
                   <Label htmlFor="studentName" className="text-right">
                     Nom de l'Élève
                   </Label>
-                  <Input id="studentName" name="studentName" className="col-span-3" required />
+                   <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={comboboxOpen}
+                        className="col-span-3 w-full justify-between"
+                      >
+                        {selectedStudentName || "Sélectionner un élève..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Rechercher un élève..." />
+                        <CommandEmpty>Aucun élève trouvé.</CommandEmpty>
+                        <CommandList>
+                           <CommandGroup>
+                            {students.map((student) => (
+                              <CommandItem
+                                key={student.id}
+                                value={student.name}
+                                onSelect={(currentValue) => {
+                                  setSelectedStudentName(currentValue === selectedStudentName ? "" : student.name);
+                                  setComboboxOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedStudentName === student.name ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                   <span>{student.name}</span>
+                                   <span className="text-xs text-muted-foreground">
+                                       ID: {student.studentId} | Classe: {student.class}
+                                   </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">
