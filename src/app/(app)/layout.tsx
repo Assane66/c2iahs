@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -10,6 +11,7 @@ import {
   Users,
   UserCog,
   School,
+  UserX,
 } from 'lucide-react';
 
 import {
@@ -86,6 +88,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <CreditCard />
                   Paiements
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <Link href="/unpaid" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/unpaid')}
+                  tooltip="Non Payé"
+                >
+                  <UserX />
+                  Non Payé
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
