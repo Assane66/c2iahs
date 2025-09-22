@@ -7,7 +7,6 @@ import {
   BookCopy,
   CreditCard,
   LayoutDashboard,
-  School,
   Users,
   UserCog,
 } from 'lucide-react';
@@ -66,18 +65,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Users />
                   Élèves
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/classes" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/classes')}
-                  tooltip="Classes"
-                  asChild={false} 
-                >
-                  <School />
-                  Classes
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
