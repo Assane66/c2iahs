@@ -11,18 +11,18 @@ import {
 import { DollarSign, Users, School, AlertCircle } from 'lucide-react';
 
 const data = [
-  { name: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Fév', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Mar', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Avr', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Mai', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Juin', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Juil', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Août', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Sep', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Oct', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Nov', total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Déc', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Jan', total: 0 },
+  { name: 'Fév', total: 0 },
+  { name: 'Mar', total: 0 },
+  { name: 'Avr', total: 0 },
+  { name: 'Mai', total: 0 },
+  { name: 'Juin', total: 0 },
+  { name: 'Juil', total: 0 },
+  { name: 'Août', total: 0 },
+  { name: 'Sep', total: 0 },
+  { name: 'Oct', total: 0 },
+  { name: 'Nov', total: 0 },
+  { name: 'Déc', total: 0 },
 ];
 
 export default function DashboardPage() {
@@ -41,9 +41,9 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">452</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">
-              +20.1% depuis le mois dernier
+              Aucune nouvelle donnée
             </p>
           </CardContent>
         </Card>
@@ -55,9 +55,9 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">$0.00</div>
             <p className="text-xs text-muted-foreground">
-              +180.1% depuis le mois dernier
+              Aucune nouvelle donnée
             </p>
           </CardContent>
         </Card>
@@ -67,9 +67,9 @@ export default function DashboardPage() {
             <School className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+24</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">
-              +19% depuis le mois dernier
+              Aucune nouvelle donnée
             </p>
           </CardContent>
         </Card>
@@ -81,9 +81,9 @@ export default function DashboardPage() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">
-              3 nouveaux depuis la dernière heure
+             Aucune nouvelle donnée
             </p>
           </CardContent>
         </Card>
