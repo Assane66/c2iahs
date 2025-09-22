@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Users,
   UserCog,
+  School,
 } from 'lucide-react';
 
 import {
@@ -63,6 +64,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Users />
                   Élèves
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <Link href="/classes" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/classes')}
+                  tooltip="Classes"
+                >
+                  <School />
+                  Classes
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

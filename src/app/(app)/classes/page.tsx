@@ -1,5 +1,9 @@
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import {
   Card,
   CardContent,
@@ -8,13 +12,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Table,
   TableBody,
   TableCell,
@@ -22,26 +19,70 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { classes } from '@/lib/data';
+import { useToast } from '@/hooks/use-toast';
+
+type ClassInfo = {
+  name: string;
+  studentCount: number;
+};
 
 export default function ClassesPage() {
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'students'));
+        const classMap = new Map<string, number>();
+
+        querySnapshot.docs.forEach(doc => {
+          const studentData = doc.data();
+          const className = studentData.class;
+          if (className) {
+            classMap.set(className, (classMap.get(className) || 0) + 1);
+          }
+        });
+
+        const classesList: ClassInfo[] = Array.from(classMap, ([name, studentCount]) => ({
+          name,
+          studentCount,
+        }));
+        
+        classesList.sort((a, b) => a.name.localeCompare(b.name));
+        setClasses(classesList);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des classes: ", error);
+        toast({
+          title: 'Erreur',
+          description: "Impossible de charger la liste des classes.",
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground">Gérez les classes de votre école.</p>
+          <p className="text-muted-foreground">
+            Une liste des classes basées sur les élèves inscrits.
+          </p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une Classe
-        </Button>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Liste des Classes</CardTitle>
           <CardDescription>
-            Une liste de toutes les classes de l'école.
+            Chaque classe et le nombre d'élèves correspondant.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -49,43 +90,30 @@ export default function ClassesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nom de la Classe</TableHead>
-                <TableHead>Niveau</TableHead>
-                <TableHead>Enseignant</TableHead>
-                <TableHead>Nbr. d'Élèves</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+                <TableHead className="text-right">Nombres d'Élèves</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {classes.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.name}</TableCell>
-                  <TableCell>{c.level}</TableCell>
-                  <TableCell>{c.teacher}</TableCell>
-                  <TableCell>{c.studentCount}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Modifier</DropdownMenuItem>
-                        <DropdownMenuItem>Voir les Élèves</DropdownMenuItem>
-                        <DropdownMenuItem>Supprimer</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="h-24 text-center">
+                    Chargement...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : classes.length > 0 ? (
+                classes.map((c) => (
+                  <TableRow key={c.name}>
+                    <TableCell className="font-medium">{c.name}</TableCell>
+                    <TableCell className="text-right">{c.studentCount}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={2} className="h-24 text-center">
+                    Aucune classe trouvée. Ajoutez des élèves pour voir les classes ici.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
