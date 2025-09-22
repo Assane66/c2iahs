@@ -1,5 +1,9 @@
+
 'use client';
 
+import { useState, useEffect } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import {
   Card,
@@ -10,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { DollarSign, Users, School, AlertCircle } from 'lucide-react';
 
-const data = [
+const initialChartData = [
   { name: 'Jan', total: 0 },
   { name: 'Fév', total: 0 },
   { name: 'Mar', total: 0 },
@@ -26,6 +30,76 @@ const data = [
 ];
 
 export default function DashboardPage() {
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [activeClasses, setActiveClasses] = useState(0);
+  const [pendingPayments, setPendingPayments] = useState(0);
+  const [chartData, setChartData] = useState(initialChartData);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch Students and Classes
+        const studentsSnapshot = await getDocs(collection(db, 'students'));
+        const studentsCount = studentsSnapshot.size;
+        setTotalStudents(studentsCount);
+
+        const classSet = new Set<string>();
+        studentsSnapshot.forEach(doc => {
+          classSet.add(doc.data().class);
+        });
+        setActiveClasses(classSet.size);
+
+        // Fetch Payments
+        const paymentsSnapshot = await getDocs(collection(db, 'payments'));
+        let revenue = 0;
+        let pending = 0;
+        const monthlyRevenue = new Array(12).fill(0);
+
+        paymentsSnapshot.forEach(doc => {
+          const payment = doc.data();
+          const amount = parseFloat(payment.amount) || 0;
+          
+          if (payment.status === 'Payé') {
+            revenue += amount;
+            if (payment.date) {
+                const paymentDate = new Date(payment.date);
+                const month = paymentDate.getMonth();
+                monthlyRevenue[month] += amount;
+            }
+          } else if (payment.status === 'En attente' || payment.status === 'En retard') {
+            pending++;
+          }
+        });
+
+        setTotalRevenue(revenue);
+        setPendingPayments(pending);
+
+        const newChartData = initialChartData.map((monthData, index) => ({
+            ...monthData,
+            total: monthlyRevenue[index],
+        }));
+        setChartData(newChartData);
+
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données du tableau de bord:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'XOF', // FCFA currency code is XOF
+        minimumFractionDigits: 0,
+    }).format(value);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <header>
@@ -41,9 +115,9 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              Aucune nouvelle donnée
+            {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{totalStudents}</div>}
+             <p className="text-xs text-muted-foreground">
+              Total des élèves inscrits
             </p>
           </CardContent>
         </Card>
@@ -55,9 +129,9 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
+             {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>}
             <p className="text-xs text-muted-foreground">
-              Aucune nouvelle donnée
+              Basé sur les paiements reçus
             </p>
           </CardContent>
         </Card>
@@ -67,9 +141,9 @@ export default function DashboardPage() {
             <School className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+             {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{activeClasses}</div>}
             <p className="text-xs text-muted-foreground">
-              Aucune nouvelle donnée
+              Total des classes uniques
             </p>
           </CardContent>
         </Card>
@@ -81,21 +155,21 @@ export default function DashboardPage() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{pendingPayments}</div>}
             <p className="text-xs text-muted-foreground">
-             Aucune nouvelle donnée
+             En attente ou en retard
             </p>
           </CardContent>
         </Card>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Aperçu</CardTitle>
-          <CardDescription>Aperçu mensuel des revenus.</CardDescription>
+          <CardTitle>Aperçu des Revenus</CardTitle>
+          <CardDescription>Aperçu mensuel des revenus encaissés.</CardDescription>
         </CardHeader>
         <CardContent className="pl-2">
           <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data}>
+            <BarChart data={chartData}>
               <XAxis
                 dataKey="name"
                 stroke="hsl(var(--muted-foreground))"
@@ -108,7 +182,7 @@ export default function DashboardPage() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `${value/1000}K`}
               />
               <Bar
                 dataKey="total"
