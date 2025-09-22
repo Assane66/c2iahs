@@ -20,6 +20,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 
 type ClassInfo = {
   name: string;
@@ -65,7 +67,7 @@ export default function ClassesPage() {
     };
 
     fetchClasses();
-  }, []);
+  }, [toast]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -91,25 +93,35 @@ export default function ClassesPage() {
               <TableRow>
                 <TableHead>Nom de la Classe</TableHead>
                 <TableHead className="text-right">Nombres d'Élèves</TableHead>
+                <TableHead><span className="sr-only">Voir</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={2} className="h-24 text-center">
+                  <TableCell colSpan={3} className="h-24 text-center">
                     Chargement...
                   </TableCell>
                 </TableRow>
               ) : classes.length > 0 ? (
                 classes.map((c) => (
-                  <TableRow key={c.name}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
+                   <TableRow key={c.name} className="group hover:bg-muted/50">
+                    <TableCell className="font-medium">
+                      <Link href={`/classes/${encodeURIComponent(c.name)}`} className="hover:underline">
+                        {c.name}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-right">{c.studentCount}</TableCell>
+                    <TableCell className="text-right">
+                       <Link href={`/classes/${encodeURIComponent(c.name)}`}>
+                        <ChevronRight className="h-4 w-4 inline-block opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={2} className="h-24 text-center">
+                  <TableCell colSpan={3} className="h-24 text-center">
                     Aucune classe trouvée. Ajoutez des élèves pour voir les classes ici.
                   </TableCell>
                 </TableRow>
