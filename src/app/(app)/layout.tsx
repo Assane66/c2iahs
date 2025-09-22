@@ -49,7 +49,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton
                   isActive={isActive('/dashboard')}
                   tooltip="Tableau de Bord"
-                  asChild={false} 
                 >
                   <LayoutDashboard />
                   Tableau de Bord
@@ -61,7 +60,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton
                   isActive={isActive('/students')}
                   tooltip="Élèves"
-                  asChild={false} 
                 >
                   <Users />
                   Élèves
@@ -73,7 +71,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton
                   isActive={isActive('/payments')}
                   tooltip="Paiements"
-                  asChild={false} 
                 >
                   <CreditCard />
                   Paiements
@@ -85,7 +82,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton
                   isActive={isActive('/users')}
                   tooltip="Utilisateurs"
-                  asChild={false} 
                 >
                   <UserCog />
                   Utilisateurs
