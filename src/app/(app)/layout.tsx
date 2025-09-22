@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   BookCopy,
   CreditCard,
@@ -45,54 +46,64 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/dashboard"
-                isActive={isActive('/dashboard')}
-                tooltip="Tableau de Bord"
-              >
-                <LayoutDashboard />
-                Tableau de Bord
-              </SidebarMenuButton>
+              <Link href="/dashboard" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/dashboard')}
+                  tooltip="Tableau de Bord"
+                  asChild={false} 
+                >
+                  <LayoutDashboard />
+                  Tableau de Bord
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/students"
-                isActive={isActive('/students')}
-                tooltip="Élèves"
-              >
-                <Users />
-                Élèves
-              </SidebarMenuButton>
+              <Link href="/students" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/students')}
+                  tooltip="Élèves"
+                  asChild={false} 
+                >
+                  <Users />
+                  Élèves
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/classes"
-                isActive={isActive('/classes')}
-                tooltip="Classes"
-              >
-                <School />
-                Classes
-              </SidebarMenuButton>
+              <Link href="/classes" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/classes')}
+                  tooltip="Classes"
+                  asChild={false} 
+                >
+                  <School />
+                  Classes
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/payments"
-                isActive={isActive('/payments')}
-                tooltip="Paiements"
-              >
-                <CreditCard />
-                Paiements
-              </SidebarMenuButton>
+              <Link href="/payments" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/payments')}
+                  tooltip="Paiements"
+                  asChild={false} 
+                >
+                  <CreditCard />
+                  Paiements
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/users"
-                isActive={isActive('/users')}
-                tooltip="Utilisateurs"
-              >
-                <UserCog />
-                Utilisateurs
-              </SidebarMenuButton>
+              <Link href="/users" passHref>
+                <SidebarMenuButton
+                  isActive={isActive('/users')}
+                  tooltip="Utilisateurs"
+                  asChild={false} 
+                >
+                  <UserCog />
+                  Utilisateurs
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
