@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 type Student = {
   id: string;
@@ -50,26 +53,80 @@ type Student = {
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [open, setOpen] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState<Partial<Student>>({});
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const handleAddStudent = (e: React.FormEvent<HTMLFormElement>) => {
+  const fetchStudents = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'students'));
+      const studentsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Student[];
+      setStudents(studentsList);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des élèves: ", error);
+      toast({
+        title: 'Erreur',
+        description: "Impossible de charger la liste des élèves.",
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const handleAddStudent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newStudent: Student = {
-      id: `STD-${Math.random().toString(36).substr(2, 9)}`,
-      name: (e.currentTarget.elements.namedItem('name') as HTMLInputElement)?.value,
-      class: (e.currentTarget.elements.namedItem('class') as HTMLInputElement)?.value,
-      dob: (e.currentTarget.elements.namedItem('dob') as HTMLInputElement)?.value,
-      pob: (e.currentTarget.elements.namedItem('pob') as HTMLInputElement)?.value,
-      contact: (e.currentTarget.elements.namedItem('contact') as HTMLInputElement)?.value,
+    const form = e.currentTarget;
+    const newStudentData = {
+      name: (form.elements.namedItem('name') as HTMLInputElement)?.value,
+      class: (form.elements.namedItem('class') as HTMLInputElement)?.value,
+      dob: (form.elements.namedItem('dob') as HTMLInputElement)?.value,
+      pob: (form.elements.namedItem('pob') as HTMLInputElement)?.value,
+      contact: (form.elements.namedItem('contact') as HTMLInputElement)?.value,
     };
-    setStudents([...students, newStudent]);
-    setOpen(false);
+    try {
+      await addDoc(collection(db, 'students'), newStudentData);
+      toast({
+        title: 'Succès',
+        description: 'Élève ajouté avec succès !',
+      });
+      fetchStudents(); // Refresh list
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de l'élève: ", error);
+      toast({
+        title: 'Erreur',
+        description: "Impossible d'ajouter l'élève.",
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleDeleteStudent = (id: string) => {
-    setStudents(students.filter((student) => student.id !== id));
+  const handleDeleteStudent = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'students', id));
+      toast({
+        title: 'Succès',
+        description: 'Élève supprimé avec succès !',
+      });
+      fetchStudents(); // Refresh list
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'élève: ", error);
+      toast({
+        title: 'Erreur',
+        description: "Impossible de supprimer l'élève.",
+        variant: 'destructive',
+      });
+    }
   };
-
+  
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -158,7 +215,13 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {students.length > 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Chargement...
+                  </TableCell>
+                </TableRow>
+              ) : students.length > 0 ? (
                 students.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">{student.name}</TableCell>
