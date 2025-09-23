@@ -5,9 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, BookOpen, GraduationCap, Users, Phone, MapPin, Mail, Bus, Utensils, BedDouble, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
-import { Progress } from "@/components/ui/progress"
+import { Award, GraduationCap, Phone, MapPin, Mail, Bus, Utensils, BedDouble, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 
 const FrenchIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -21,6 +22,17 @@ const ComputerIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
 );
 
+const sectionVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  },
+};
 
 export default function LandingPage() {
   return (
@@ -68,7 +80,12 @@ export default function LandingPage() {
             />
             <div className="absolute inset-0 bg-black/60 flex items-center">
                 <div className="container mx-auto px-4 md:px-6">
-                    <div className="max-w-2xl">
+                    <motion.div 
+                        initial={{ opacity: 0, x: -100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="max-w-2xl"
+                    >
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
                             OPTEZ POUR L'EXCELLENCE ÉDUCATIVE!
                         </h1>
@@ -78,13 +95,20 @@ export default function LandingPage() {
                         <Button className="mt-6 bg-primary hover:bg-primary/90 text-lg px-8 py-6">
                             Obtenir mon formulaire d'inscription <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </section>
 
         {/* About Us Section */}
-        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900">
+        <motion.section 
+            id="about" 
+            className="w-full py-12 md:py-24 lg:py-32 bg-gray-900"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+        >
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
@@ -115,10 +139,16 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Results Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <motion.section 
+            className="w-full py-12 md:py-24 lg:py-32 bg-primary/10"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+        >
             <div className="container mx-auto px-4 md:px-6 text-center">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">RÉSULTATS 2021 / 2022</h2>
                 <div className="mt-12 grid sm:grid-cols-3 gap-8">
@@ -149,10 +179,17 @@ export default function LandingPage() {
                     <Progress value={80} className="mt-2 h-4 bg-gray-700" />
                 </div>
             </div>
-        </section>
+        </motion.section>
 
         {/* Programs Section */}
-        <section id="programs" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900">
+        <motion.section 
+            id="programs" 
+            className="w-full py-12 md:py-24 lg:py-32 bg-gray-900"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+        >
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">NOS PROGRAMMES</h2>
@@ -187,10 +224,17 @@ export default function LandingPage() {
                 </Card>
             </div>
           </div>
-        </section>
+        </motion.section>
         
         {/* Services Section */}
-         <section id="services" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+         <motion.section 
+            id="services" 
+            className="w-full py-12 md:py-24 lg:py-32 bg-primary/10"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+         >
           <div className="container mx-auto px-4 md:px-6">
              <div className="text-center mb-12">
                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">NOS SERVICES</h2>
@@ -225,10 +269,17 @@ export default function LandingPage() {
                 </Card>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Testimonials */}
-        <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900">
+        <motion.section 
+            id="testimonials" 
+            className="w-full py-12 md:py-24 lg:py-32 bg-gray-900"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+        >
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">TÉMOIGNAGES</h2>
@@ -246,7 +297,7 @@ export default function LandingPage() {
                 </CardContent>
             </Card>
           </div>
-        </section>
+        </motion.section>
         
       </main>
 
