@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "Des élèves souriants dans une salle de classe lumineuse.",
+      "imageUrl": "https://images.unsplash.com/photo-1752564291723-bb816a3dfb33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdHVkZW50cyUyMGNsYXNzcm9vbXxlbnwwfHx8fDE3NTg1OTUyMjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "students classroom"
+    },
+    {
+      "id": "2",
+      "description": "La cour de l'école pendant la récréation.",
+      "imageUrl": "https://images.unsplash.com/photo-1516381548400-349d680edb56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzY2hvb2wlMjBwbGF5Z3JvdW5kfGVufDB8fHx8MTc1ODY0ODI5NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "school playground"
+    },
+    {
+      "id": "3",
+      "description": "Un enseignant aidant un élève avec son travail.",
+      "imageUrl": "https://images.unsplash.com/photo-1676034524022-031bb8959e93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dGVhY2hlciUyMHN0dWRlbnR8ZW58MHx8fHwxNzU4NTg1MTA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "teacher student"
+    }
+  ]
 }
