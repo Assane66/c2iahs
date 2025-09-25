@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram, BookCopy } from 'lucide-react';
+import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
@@ -51,7 +51,7 @@ export default function LandingPage() {
                     <span className="ml-3 text-xl font-bold">Institut Al Housseynou</span>
                 </Link>
                 <nav className="hidden lg:flex gap-6 items-center">
-                    <Link href="#" className="text-sm font-medium hover:text-primary" prefetch={false}>Accueil</Link>
+                    <Link href="#home" className="text-sm font-medium hover:text-primary" prefetch={false}>Accueil</Link>
                     <Link href="#about" className="text-sm font-medium hover:text-primary" prefetch={false}>À propos</Link>
                     <Link href="#programs" className="text-sm font-medium hover:text-primary" prefetch={false}>Programmes</Link>
                     <Link href="#contact" className="text-sm font-medium hover:text-primary" prefetch={false}>Contact</Link>
@@ -65,7 +65,7 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full h-[70vh] relative">
+        <section id="home" className="w-full h-[70vh] relative">
             <Image
               src="https://picsum.photos/seed/1/1200/800"
               alt="Students in classroom"
