@@ -121,7 +121,7 @@ export default function LandingPage() {
                   data-ai-hint="children playground"
                 />
                 <div className="absolute -top-8 -left-8 bg-primary text-white p-6 rounded-xl text-center w-32">
-                    <p className="text-4xl font-bold">+25</p>
+                    <p className="text-4xl font-bold">+5</p>
                     <p className="text-lg">ans</p>
                 </div>
               </div>
