@@ -5,12 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import React from 'react';
+
 
 const FrenchIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+    <svg xmlns="http://www.w.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
 );
 
 const QuranIcon = () => (
@@ -30,11 +33,13 @@ const sectionVariants = {
 };
 
 export default function LandingPage() {
+    const [open, setOpen] = React.useState(false);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <header className="bg-black/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-6">
-            <div className="flex justify-between items-center py-2 text-xs text-gray-400">
+            <div className="hidden md:flex justify-between items-center py-2 text-xs text-gray-400">
                 <div>
                     <span>Contactez-nous : +221 33 835 91 51 / 77 788 44 44</span>
                 </div>
@@ -44,7 +49,7 @@ export default function LandingPage() {
                     <Instagram className="h-4 w-4" />
                 </div>
             </div>
-             <hr className="border-gray-700" />
+             <hr className="border-gray-700 hidden md:block" />
             <div className="flex items-center justify-between h-20">
                 <Link href="#" className="flex items-center" prefetch={false}>
                     <GraduationCap className="h-8 w-8 text-primary" />
@@ -56,9 +61,31 @@ export default function LandingPage() {
                     <Link href="#programs" className="text-sm font-medium hover:text-primary" prefetch={false}>Programmes</Link>
                     <Link href="#contact" className="text-sm font-medium hover:text-primary" prefetch={false}>Contact</Link>
                 </nav>
-                 <Button asChild className="bg-primary hover:bg-primary/90">
-                    <Link href="/login">Espace Admin</Link>
-                </Button>
+                 <div className="hidden lg:flex items-center">
+                    <Button asChild className="bg-primary hover:bg-primary/90">
+                        <Link href="/login">Espace Admin</Link>
+                    </Button>
+                </div>
+
+                <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon" className="lg:hidden bg-transparent border-gray-600">
+                            <Menu className="h-6 w-6" />
+                            <span className="sr-only">Ouvrir le menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="bg-gray-900/95 border-gray-800 text-white">
+                         <nav className="grid gap-6 text-lg font-medium mt-16">
+                            <Link href="#home" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
+                            <Link href="#about" onClick={() => setOpen(false)} className="hover:text-primary">À propos</Link>
+                            <Link href="#programs" onClick={() => setOpen(false)} className="hover:text-primary">Programmes</Link>
+                            <Link href="#contact" onClick={() => setOpen(false)} className="hover:text-primary">Contact</Link>
+                             <Button asChild className="bg-primary hover:bg-primary/90 mt-4">
+                                <Link href="/login">Espace Admin</Link>
+                            </Button>
+                        </nav>
+                    </SheetContent>
+                </Sheet>
             </div>
         </div>
       </header>
@@ -122,7 +149,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">À PROPOS DE NOUS</h2>
-                <p className="mt-4 text-gray-400">
+                 <p className="mt-4 text-gray-400">
                   Le Centre Imam Al Housseynou Sow est un lieu de croissance et d'épanouissement. Fondé en hommage à l'Imam Al Housseynou Sow, ce centre a pour vocation d'offrir une éducation complète dès les premières années du primaire, du C1 à la CM2. L'objectif est de poser les fondations solides qui soutiendront les enfants tout au long de leur vie.
                 </p>
                 <p className="mt-4 text-gray-400">
