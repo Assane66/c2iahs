@@ -201,7 +201,7 @@ export default function LandingPage() {
                         <CardTitle className="mt-4">Le Français :</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-gray-400">Enseignement moderne et laïque, programme officiel (CI au CM2).</p>
+                        <p className="text-gray-400">Enseignement moderne programme officiel (CI au CM2).</p>
                     </CardContent>
                 </Card>
                  <Card className="bg-gray-800 border-gray-700 text-center p-6">
