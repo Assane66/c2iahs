@@ -226,51 +226,6 @@ export default function LandingPage() {
           </div>
         </motion.section>
         
-        {/* Services Section */}
-         <motion.section 
-            id="services" 
-            className="w-full py-12 md:py-24 lg:py-32 bg-primary/10"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={sectionVariants}
-         >
-          <div className="container mx-auto px-4 md:px-6">
-             <div className="text-center mb-12">
-                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">NOS SERVICES</h2>
-            </div>
-             <div className="grid md:grid-cols-3 gap-8">
-                <Card className="bg-primary/20 border-primary p-6">
-                    <CardHeader>
-                        <Bus className="h-10 w-10 text-primary mb-2" />
-                        <CardTitle>TRANSPORT</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-300">Pour déposer et reprendre les élèves à la descente, un système de transport est mis en place.</p>
-                    </CardContent>
-                </Card>
-                 <Card className="bg-accent/20 border-accent p-6">
-                    <CardHeader>
-                        <Utensils className="h-10 w-10 text-accent mb-2" />
-                        <CardTitle>CANTINE</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-300">Les externes ont la possibilité de s'inscrire à la cantine avec un menu varié et des repas équilibrés.</p>
-                    </CardContent>
-                </Card>
-                 <Card className="bg-primary/20 border-primary p-6">
-                    <CardHeader>
-                        <BedDouble className="h-10 w-10 text-primary mb-2" />
-                        <CardTitle>INTERNAT</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-300">Notre internat offre un cadre de vie sécurisé, paisible et un accompagnement de proximité.</p>
-                    </CardContent>
-                </Card>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Testimonials */}
         <motion.section 
             id="testimonials" 
