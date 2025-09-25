@@ -5,8 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, GraduationCap, Phone, MapPin, Mail, Bus, Utensils, BedDouble, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
-import { Progress } from "@/components/ui/progress";
+import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
@@ -16,10 +15,6 @@ const FrenchIcon = () => (
 
 const QuranIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
-);
-
-const ComputerIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
 );
 
 const sectionVariants = {
@@ -121,7 +116,7 @@ export default function LandingPage() {
                   data-ai-hint="children playground"
                 />
                 <div className="absolute -top-8 -left-8 bg-primary text-white p-6 rounded-xl text-center w-32">
-                    <p className="text-4xl font-bold">+5</p>
+                    <p className="text-4xl font-bold">+3</p>
                     <p className="text-lg">ans</p>
                 </div>
               </div>
@@ -165,33 +160,36 @@ export default function LandingPage() {
             variants={sectionVariants}
         >
             <div className="container mx-auto px-4 md:px-6 text-center">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">RÉSULTATS 2021 / 2022</h2>
-                <div className="mt-12 grid sm:grid-cols-3 gap-8">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">Résultats de l'Entrée en 6ème</h2>
+                <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     <Card className="bg-primary/20 border-primary">
                         <CardHeader className="items-center">
                             <Award className="h-12 w-12 text-primary mb-4" />
-                            <CardTitle>CFEE</CardTitle>
-                            <CardDescription className="text-gray-300">104 admis sur 109 candidats</CardDescription>
+                            <CardTitle>2022</CardTitle>
+                            <CardDescription className="text-gray-300">17 élèves - 100% admis</CardDescription>
                         </CardHeader>
                     </Card>
                     <Card className="bg-primary/20 border-primary">
                         <CardHeader className="items-center">
                             <Award className="h-12 w-12 text-primary mb-4" />
-                            <CardTitle>BFEM</CardTitle>
-                            <CardDescription className="text-gray-300">46 admis sur 75 candidats</CardDescription>
+                            <CardTitle>2023</CardTitle>
+                            <CardDescription className="text-gray-300">17 élèves - 88% admis</CardDescription>
                         </CardHeader>
                     </Card>
                      <Card className="bg-primary/20 border-primary">
                         <CardHeader className="items-center">
                             <Award className="h-12 w-12 text-primary mb-4" />
-                            <CardTitle>BAC</CardTitle>
-                            <CardDescription className="text-gray-300">30 admis, 4 mentions bien, 6 assez-bien</CardDescription>
+                            <CardTitle>2024</CardTitle>
+                            <CardDescription className="text-gray-300">25 élèves - 100% admis</CardDescription>
                         </CardHeader>
                     </Card>
-                </div>
-                 <div className="mt-12 max-w-2xl mx-auto">
-                    <p className="font-semibold">TAUX DE RÉUSSITE INTERNAT :</p>
-                    <Progress value={80} className="mt-2 h-4 bg-gray-700" />
+                     <Card className="bg-primary/20 border-primary">
+                        <CardHeader className="items-center">
+                            <Award className="h-12 w-12 text-primary mb-4" />
+                            <CardTitle>2025</CardTitle>
+                            <CardDescription className="text-gray-300">20 élèves - 85% admis</CardDescription>
+                        </CardHeader>
+                    </Card>
                 </div>
             </div>
         </motion.section>
