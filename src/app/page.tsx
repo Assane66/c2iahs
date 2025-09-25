@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram, BookCopy } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
@@ -227,34 +227,6 @@ export default function LandingPage() {
                     </CardContent>
                 </Card>
             </div>
-          </div>
-        </motion.section>
-        
-        {/* Testimonials */}
-        <motion.section 
-            id="testimonials" 
-            className="w-full py-12 md:py-24 lg:py-32 bg-gray-900"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={sectionVariants}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">TÉMOIGNAGES</h2>
-            </div>
-            <Card className="bg-gray-800 border-gray-700 max-w-3xl mx-auto p-8">
-                <CardContent className="flex gap-6">
-                    <Image src="https://picsum.photos/seed/avatar/100/100" alt="Parent avatar" width={80} height={80} className="rounded-full" data-ai-hint="person face" />
-                    <div>
-                        <h3 className="font-bold">Maman Bineta DIOP, Parente d'élève</h3>
-                        <p className="text-sm text-gray-400 mb-4">Ingénieur - Chef de projet</p>
-                        <blockquote className="italic text-gray-300">
-                           "J'ai inscrit mes deux enfants au CCAHS/N. Ils y ont appris le Coran, le français et la sociabilité. Aujourd'hui, je suis fière de leur cursus. L'un est ingénieur et l'autre médecin. Je recommande vivement cet établissement d'excellence."
-                        </blockquote>
-                    </div>
-                </CardContent>
-            </Card>
           </div>
         </motion.section>
         
