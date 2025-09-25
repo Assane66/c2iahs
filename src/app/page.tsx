@@ -194,7 +194,7 @@ export default function LandingPage() {
             <div className="text-center mb-12">
                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">NOS PROGRAMMES</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
                 <Card className="bg-gray-800 border-gray-700 text-center p-6">
                     <CardHeader className="items-center">
                         <FrenchIcon />
@@ -211,15 +211,6 @@ export default function LandingPage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-gray-400">Enseignement de l'arabe et mémorisation du Coran. Notre programme permet aux enfants d'être mémorisateurs.</p>
-                    </CardContent>
-                </Card>
-                 <Card className="bg-gray-800 border-gray-700 text-center p-6">
-                    <CardHeader className="items-center">
-                        <ComputerIcon />
-                        <CardTitle className="mt-4">L'informatique :</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-400">Initiation aux nouvelles technologies, à l'informatique et au digital.</p>
                     </CardContent>
                 </Card>
             </div>
