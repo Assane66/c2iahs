@@ -94,7 +94,7 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section id="home" className="w-full h-[70vh] relative">
             <Image
-              src="https://picsum.photos/seed/1/1200/800"
+              src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759195047/1758764881367_2_gbnpjm.jpg"
               alt="Students in classroom"
               fill
               className="object-cover"
