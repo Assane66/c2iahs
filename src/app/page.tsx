@@ -142,7 +142,7 @@ export default function LandingPage() {
                   className="rounded-xl"
                   data-ai-hint="children playground"
                 />
-                <div className="absolute -top-8 bg-primary text-white p-6 rounded-xl text-center w-32">
+                <div className="absolute top-4 left-4 bg-primary text-white p-4 rounded-xl text-center w-24">
                     <p className="text-4xl font-bold">+3</p>
                     <p className="text-lg">ans</p>
                 </div>
