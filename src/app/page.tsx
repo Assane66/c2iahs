@@ -111,9 +111,6 @@ export default function LandingPage() {
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
                             OPTEZ POUR L'EXCELLENCE ÉDUCATIVE!
                         </h1>
-                        <p className="mt-4 text-lg text-gray-300">
-                            Notre mission est de former des leaders de demain en offrant une éducation de qualité, alliant savoir moderne et valeurs islamiques.
-                        </p>
                         <Button className="mt-6 bg-primary hover:bg-primary/90 text-lg px-8 py-6">
                             Obtenir mon formulaire d'inscription <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
@@ -295,5 +292,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
