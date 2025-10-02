@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 
 const FrenchIcon = () => (
@@ -34,6 +36,28 @@ const sectionVariants = {
 
 export default function LandingPage() {
     const [open, setOpen] = React.useState(false);
+    const [isFormOpen, setIsFormOpen] = React.useState(false);
+
+    const handleRegistrationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const prenom = (form.elements.namedItem('prenom') as HTMLInputElement).value;
+      const nom = (form.elements.namedItem('nom') as HTMLInputElement).value;
+      const telephone = (form.elements.namedItem('telephone') as HTMLInputElement).value;
+      const niveau = (form.elements.namedItem('niveau') as HTMLInputElement).value;
+
+      const message = `
+        Nouvelle demande d'inscription:
+        Prénom: ${prenom}
+        Nom: ${nom}
+        Téléphone: ${telephone}
+        Niveau: ${niveau}
+      `;
+
+      const whatsappUrl = `https://wa.me/221781635209?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      setIsFormOpen(false);
+    };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
@@ -111,7 +135,7 @@ export default function LandingPage() {
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
                             OPTEZ POUR L'EXCELLENCE ÉDUCATIVE!
                         </h1>
-                        <Button className="mt-6 bg-primary hover:bg-primary/90 text-lg px-8 py-6">
+                        <Button className="mt-6 bg-primary hover:bg-primary/90 text-lg px-8 py-6" onClick={() => setIsFormOpen(true)}>
                             Obtenir mon formulaire d'inscription <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                     </motion.div>
@@ -237,6 +261,44 @@ export default function LandingPage() {
         </motion.section>
         
       </main>
+      
+      {/* Registration Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle>Formulaire d'Inscription</DialogTitle>
+            <DialogDescription>
+              Veuillez remplir les informations ci-dessous. Elles seront envoyées via WhatsApp.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleRegistrationSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="prenom" className="text-right">Prénom</Label>
+                <Input id="prenom" name="prenom" className="col-span-3 bg-gray-700 border-gray-600" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="nom" className="text-right">Nom</Label>
+                <Input id="nom" name="nom" className="col-span-3 bg-gray-700 border-gray-600" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="telephone" className="text-right">Téléphone</Label>
+                <Input id="telephone" name="telephone" type="tel" className="col-span-3 bg-gray-700 border-gray-600" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="niveau" className="text-right">Niveau</Label>
+                <Input id="niveau" name="niveau" placeholder="ex: CI, CM2..." className="col-span-3 bg-gray-700 border-gray-600" required />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">Annuler</Button>
+              </DialogClose>
+              <Button type="submit" className="bg-primary hover:bg-primary/90">Envoyer via WhatsApp</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <footer id="contact" className="bg-black py-12">
         <div className="container mx-auto px-4 md:px-6">
