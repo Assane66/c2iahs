@@ -41,7 +41,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 lg:px-6">
             <div className="hidden md:flex justify-between items-center py-2 text-xs text-gray-400">
                 <div>
-                    <span>Contactez-nous : +221 33 835 91 51 / 77 788 44 44</span>
+                    <span>Contactez-nous : +221 78 430 30 18 / +221 78 163 52 09 Email : -</span>
                 </div>
                 <div className="flex gap-4">
                     <Facebook className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function LandingPage() {
                 <div>
                     <h3 className="font-bold text-white mb-4">CONTACTEZ-NOUS</h3>
                     <div className="flex flex-col gap-2">
-                        <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span>+221 78 451 36 33</span></p>
+                        <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span>+221 78 430 30 18 / +221 78 163 52 09</span></p>
                         <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> <span>contact@alhousseynou.sn</span></p>
                         <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <span>Tivaouane Peulh, QRT Bayal Ba</span></p>
                     </div>
