@@ -289,6 +289,16 @@ export default function LandingPage() {
             </div>
         </div>
       </footer>
+
+      <Link href="https://wa.me/781635209" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50">
+        <Image
+          src="https://res.cloudinary.com/dm6yuokre/image/upload/v1752163214/Pngtree_whatsapp_icon_whatsapp_logo_3584844_qnvcmv.png"
+          alt="WhatsApp"
+          width={60}
+          height={60}
+          className="rounded-full shadow-lg hover:scale-110 transition-transform"
+        />
+      </Link>
     </div>
   );
 }
