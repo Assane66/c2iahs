@@ -171,7 +171,7 @@ export default function LandingPage() {
               <div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-primary">À PROPOS DE NOUS</h2>
                  <p className="mt-4 text-gray-400">
-                  Le Centre Imam Al Housseynou Sow est un lieu de croissance et d'épanouissement. Fondé en hommage à l'Imam Al Housseynou Sow, ce centre a pour vocation d'offrir une éducation complète dès les premières années du primaire, du C1 à la CM2. L'objectif est de poser les fondations solides qui soutiendront les enfants tout au long de leur vie.
+                  Le Centre Imam Al Housseynou Sow est un lieu de croissance et d'épanouissement. Fondé en 2021 en hommage à l'Imam Al Housseynou Sow, ce centre a pour vocation d'offrir une éducation complète dès les premières années du primaire, du C1 à la CM2. L'objectif est de poser les fondations solides qui soutiendront les enfants tout au long de leur vie.
                 </p>
                 <Button asChild className="mt-6 bg-primary hover:bg-primary/90">
                     <Link href="/about">En savoir plus <ArrowRight className="ml-2 h-5 w-5" /></Link>
