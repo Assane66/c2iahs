@@ -78,7 +78,6 @@ export default function LandingPage() {
                 </Link>
                 <nav className="hidden lg:flex gap-8 items-center text-sm font-medium">
                     <Link href="/" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
-                    <Link href="#contact" className="text-foreground hover:text-primary" prefetch={false}>Contact</Link>
                     <Link href="/login" className="text-foreground hover:text-primary" prefetch={false}>Espace Admin</Link>
                 </nav>
                  <div className="hidden lg:flex items-center">
@@ -97,7 +96,6 @@ export default function LandingPage() {
                     <SheetContent side="left" className="bg-card text-foreground">
                          <nav className="grid gap-6 text-lg font-medium mt-16">
                             <Link href="/" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
-                            <Link href="#contact" onClick={() => setOpen(false)} className="hover:text-primary">Contact</Link>
                              <Button asChild className="bg-primary hover:bg-primary/90 mt-4">
                                 <Link href="/login">Espace Admin</Link>
                             </Button>
