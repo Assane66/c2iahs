@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -168,7 +169,7 @@ export default function LandingPage() {
               </div>
               <div className="relative h-80 w-full">
                 <Image
-                  src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg"
+                  src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759775671/1759775403161_2_opz6ot.jpg"
                   alt="Students eating together"
                   fill
                   className="rounded-xl object-cover"
