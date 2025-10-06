@@ -19,10 +19,17 @@ const sectionVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: "easeOut"
+      ease: "easeOut",
+      staggerChildren: 0.2
     }
   },
 };
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 
 export default function LandingPage() {
     const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -84,6 +91,41 @@ export default function LandingPage() {
                  </motion.div>
             </div>
         </section>
+
+        {/* About Preview Section */}
+        <motion.section 
+            className="w-full py-12 md:py-24"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={sectionVariants}
+        >
+          <div className="container mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center">
+            <motion.div variants={itemVariants}>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">Un Lieu d'Apprentissage et de Foi</h2>
+               <p className="mt-4 text-gray-600 leading-relaxed">
+                Fondé en 2021, notre institut est né d'une vision simple : créer un environnement où l'excellence académique et l'enseignement islamique authentique se rencontrent. Nous formons des esprits brillants et des cœurs fidèles.
+              </p>
+               <Button asChild className="mt-6">
+                <Link href="/about">
+                  En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </motion.div>
+            <motion.div 
+              className="relative h-80 w-full lg:h-96"
+              variants={itemVariants}
+            >
+              <Image
+                src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759775671/1759775403161_2_opz6ot.jpg"
+                alt="Élèves du centre"
+                fill
+                className="rounded-xl object-cover shadow-lg"
+                data-ai-hint="students school community"
+              />
+            </motion.div>
+          </div>
+        </motion.section>
 
         {/* Results Section */}
         <motion.section 
@@ -170,4 +212,3 @@ export default function LandingPage() {
   );
 }
 
-    
