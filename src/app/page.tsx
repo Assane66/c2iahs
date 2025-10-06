@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram, Menu } from 'lucide-react';
+import { Award, GraduationCap, Phone, MapPin, Mail, ArrowRight, Facebook, Twitter, Instagram, Menu, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -248,6 +248,7 @@ export default function LandingPage() {
                 </Card>
                  <Card className="text-center p-6">
                     <CardHeader className="items-center">
+                        <BookOpen className="size-12 text-primary"/>
                         <CardTitle className="mt-4">L'Arabe et le Coran :</CardTitle>
                     </CardHeader>
                     <CardContent>
