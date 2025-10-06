@@ -78,8 +78,6 @@ export default function LandingPage() {
                 </Link>
                 <nav className="hidden lg:flex gap-8 items-center text-sm font-medium">
                     <Link href="/" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
-                    <Link href="/about" className="text-foreground hover:text-primary" prefetch={false}>À propos</Link>
-                    <Link href="/programs" className="text-foreground hover:text-primary" prefetch={false}>Programmes</Link>
                     <Link href="#contact" className="text-foreground hover:text-primary" prefetch={false}>Contact</Link>
                     <Link href="/login" className="text-foreground hover:text-primary" prefetch={false}>Espace Admin</Link>
                 </nav>
@@ -99,8 +97,6 @@ export default function LandingPage() {
                     <SheetContent side="left" className="bg-card text-foreground">
                          <nav className="grid gap-6 text-lg font-medium mt-16">
                             <Link href="/" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
-                            <Link href="/about" onClick={() => setOpen(false)} className="hover:text-primary">À propos</Link>
-                            <Link href="/programs" onClick={() => setOpen(false)} className="hover:text-primary">Programmes</Link>
                             <Link href="#contact" onClick={() => setOpen(false)} className="hover:text-primary">Contact</Link>
                              <Button asChild className="bg-primary hover:bg-primary/90 mt-4">
                                 <Link href="/login">Espace Admin</Link>
@@ -163,9 +159,6 @@ export default function LandingPage() {
                  <p className="mt-4 text-gray-600">
                   Fondé en 2021 et fort de plus de 3 ans d'expérience, notre institut se consacre à offrir une éducation islamique et académique de qualité, préparant nos élèves à devenir des leaders éclairés et des citoyens responsables.
                 </p>
-                <Button asChild variant="link" className="mt-4 text-primary px-0">
-                    <Link href="/about">En savoir plus sur notre mission <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                </Button>
               </div>
               <div className="relative h-80 w-full">
                 <Image
@@ -330,5 +323,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
