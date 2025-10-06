@@ -73,13 +73,13 @@ export default function LandingPage() {
         {/* Main Header */}
         <div className="container mx-auto px-4 lg:px-6">
             <div className="flex items-center justify-between h-20">
-                <Link href="#" className="flex items-center" prefetch={false}>
+                <Link href="/" className="flex items-center" prefetch={false}>
                     <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg" alt="Logo" width={48} height={48} />
                 </Link>
                 <nav className="hidden lg:flex gap-8 items-center text-sm font-medium">
-                    <Link href="#home" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
-                    <Link href="#about" className="text-foreground hover:text-primary" prefetch={false}>À propos</Link>
-                    <Link href="#programs" className="text-foreground hover:text-primary" prefetch={false}>Programmes</Link>
+                    <Link href="/" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
+                    <Link href="/about" className="text-foreground hover:text-primary" prefetch={false}>À propos</Link>
+                    <Link href="/programs" className="text-foreground hover:text-primary" prefetch={false}>Programmes</Link>
                     <Link href="#contact" className="text-foreground hover:text-primary" prefetch={false}>Contact</Link>
                     <Link href="/login" className="text-foreground hover:text-primary" prefetch={false}>Espace Admin</Link>
                 </nav>
@@ -98,9 +98,9 @@ export default function LandingPage() {
                     </SheetTrigger>
                     <SheetContent side="left" className="bg-card text-foreground">
                          <nav className="grid gap-6 text-lg font-medium mt-16">
-                            <Link href="#home" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
-                            <Link href="#about" onClick={() => setOpen(false)} className="hover:text-primary">À propos</Link>
-                            <Link href="#programs" onClick={() => setOpen(false)} className="hover:text-primary">Programmes</Link>
+                            <Link href="/" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
+                            <Link href="/about" onClick={() => setOpen(false)} className="hover:text-primary">À propos</Link>
+                            <Link href="/programs" onClick={() => setOpen(false)} className="hover:text-primary">Programmes</Link>
                             <Link href="#contact" onClick={() => setOpen(false)} className="hover:text-primary">Contact</Link>
                              <Button asChild className="bg-primary hover:bg-primary/90 mt-4">
                                 <Link href="/login">Espace Admin</Link>
@@ -222,43 +222,6 @@ export default function LandingPage() {
                 </div>
             </div>
         </motion.section>
-
-        {/* Programs Section */}
-        <motion.section 
-            id="programs" 
-            className="w-full py-12 md:py-24 lg:py-32"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={sectionVariants}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12">
-                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">NOS PROGRAMMES</h2>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-                <Card className="text-center p-6">
-                    <CardHeader className="items-center">
-                        <GraduationCap className="size-12 text-primary"/>
-                        <CardTitle className="mt-4">Le Français :</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-600">Enseignement moderne programme officiel (CI au CM2).</p>
-                    </CardContent>
-                </Card>
-                 <Card className="text-center p-6">
-                    <CardHeader className="items-center">
-                        <BookOpen className="size-12 text-primary"/>
-                        <CardTitle className="mt-4">L'Arabe et le Coran :</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-600">Enseignement de l'arabe et mémorisation du Coran. Notre programme permet aux enfants d'être mémorisateurs.</p>
-                    </CardContent>
-                </Card>
-            </div>
-          </div>
-        </motion.section>
-        
       </main>
       
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
@@ -367,3 +330,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
