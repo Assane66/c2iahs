@@ -73,7 +73,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 lg:px-6">
             <div className="flex items-center justify-between h-20">
                 <Link href="#" className="flex items-center" prefetch={false}>
-                    <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={48} height={48} />
+                    <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg" alt="Logo" width={48} height={48} />
                 </Link>
                 <nav className="hidden lg:flex gap-8 items-center text-sm font-medium">
                     <Link href="#home" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
@@ -247,7 +247,6 @@ export default function LandingPage() {
                 </Card>
                  <Card className="text-center p-6">
                     <CardHeader className="items-center">
-                         <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759774619/Pngtree_quran_holy_book_png_image__8893510_gnyoqg.png" alt="Quran" width={48} height={48}/>
                         <CardTitle className="mt-4">L'Arabe et le Coran :</CardTitle>
                     </CardHeader>
                     <CardContent>
