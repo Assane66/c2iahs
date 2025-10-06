@@ -350,7 +350,12 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <Link href="https://wa.me/221781635209" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50">
+      <Link 
+        href="https://wa.me/221781635209?text=Bonjour,%20je%20suis%20intéressé(e)%20par%20le%20Centre%20Islamique%20Imam%20Al%20Housseynou%20Sow%20et%20j'aimerais%20avoir%20plus%20d'informations." 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="fixed bottom-6 right-6 z-50"
+      >
         <Image
           src="https://res.cloudinary.com/dm6yuokre/image/upload/v1752163214/Pngtree_whatsapp_icon_whatsapp_logo_3584844_qnvcmv.png"
           alt="WhatsApp"
@@ -362,5 +367,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
