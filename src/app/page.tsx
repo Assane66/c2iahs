@@ -58,7 +58,7 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 lg:px-6 flex justify-between items-center py-1 text-xs">
               <div className="flex gap-4 items-center">
                   <span className="flex items-center gap-1.5"><MapPin className="size-3" /> Tivaouane Peulh</span>
-                   <span className="flex items-center gap-1.5"><Mail className="size-3" /> contact@schoolzenith.com</span>
+                   <span className="flex items-center gap-1.5"><Mail className="size-3" /> c2iahs@gmail.com</span>
               </div>
               <div className="flex gap-4 items-center">
                   <Facebook className="h-4 w-4" />
@@ -304,7 +304,7 @@ export default function LandingPage() {
                     <h3 className="font-bold text-white mb-4">CONTACTEZ-NOUS</h3>
                     <div className="flex flex-col gap-2">
                         <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span>+221 78 430 30 18 / +221 78 163 52 09</span></p>
-                        <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> <span>contact@schoolzenith.com</span></p>
+                        <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> <span>c2iahs@gmail.com</span></p>
                         <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <span>Tivaouane Peulh, QRT Bayal Ba</span></p>
                     </div>
                 </div>
@@ -361,3 +361,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
