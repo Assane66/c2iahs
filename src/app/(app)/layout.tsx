@@ -13,6 +13,7 @@ import {
   School,
   UserX,
 } from 'lucide-react';
+import Image from 'next/image';
 
 import {
   Sidebar,
@@ -39,9 +40,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2">
-            <Icons.logo className="size-8 text-primary" />
+            <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={40} height={40} />
             <span className="text-lg font-semibold text-sidebar-foreground">
-              Institut islamique Imame Al Housseynou Sow
+              Institut Yaye Halimatou
             </span>
           </div>
         </SidebarHeader>

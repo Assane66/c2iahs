@@ -1,9 +1,9 @@
 
 import type { SVGProps } from "react"
-import { BookCopy } from "lucide-react"
+import Image from "next/image"
 
 export const Icons = {
   logo: (props: SVGProps<SVGSVGElement>) => (
-    <BookCopy {...props} />
+    <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={48} height={48} />
   ),
 }

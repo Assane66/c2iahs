@@ -1,17 +1,17 @@
-
 import { GraduationCap, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function AboutPage() {
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
-      <header className="bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="bg-background text-foreground min-h-screen">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center" prefetch={false}>
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="ml-3 text-xl font-bold">Institut Al Housseynou</span>
+              <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={48} height={48} />
+              <span className="ml-3 text-xl font-bold">Institut Yaye Halimatou Saadiya</span>
             </Link>
             <Button asChild variant="outline">
               <Link href="/">
@@ -29,7 +29,7 @@ export default function AboutPage() {
             À Propos de Notre Institut
           </h1>
 
-          <div className="prose prose-invert lg:prose-xl text-gray-300 space-y-6">
+          <div className="prose lg:prose-xl text-gray-600 space-y-6">
             <p>
               Le Centre Imam Al Housseynou Sow est un lieu de croissance et d'épanouissement. Fondé en hommage à l'Imam Al Housseynou Sow, ce centre a pour vocation d'offrir une éducation complète dès les premières années du primaire, du C1 à la CM2. L'objectif est de poser les fondations solides qui soutiendront les enfants tout au long de leur vie.
             </p>
@@ -67,13 +67,11 @@ export default function AboutPage() {
         </div>
       </main>
 
-       <footer className="bg-black py-12 mt-16">
-        <div className="container mx-auto px-4 md:px-6 text-center text-xs text-gray-500">
+       <footer className="bg-gray-800 text-gray-300 py-12 mt-16">
+        <div className="container mx-auto px-4 md:px-6 text-center text-xs">
             <p>&copy; {new Date().getFullYear()} Institut Imame Al Housseynou Sow. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
   );
 }
-
-    
