@@ -118,7 +118,7 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section id="home" className="w-full h-[70vh] relative">
             <Image
-              src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759195047/1758764881367_2_gbnpjm.jpg"
+              src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg"
               alt="Students in classroom"
               fill
               className="object-cover"
@@ -156,7 +156,7 @@ export default function LandingPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative">
                 <Image
-                  src="https://picsum.photos/seed/2/600/600"
+                  src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg"
                   alt="Children playing"
                   width={600}
                   height={600}
