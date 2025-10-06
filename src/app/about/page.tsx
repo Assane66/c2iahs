@@ -11,7 +11,7 @@ export default function AboutPage() {
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center" prefetch={false}>
               <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={48} height={48} />
-              <span className="ml-3 text-xl font-bold">Institut Yaye Halimatou Saadiya</span>
+              <span className="ml-3 text-xl font-bold">Centre Islamique Imam Al Housseynou Sow</span>
             </Link>
             <Button asChild variant="outline">
               <Link href="/">
@@ -26,7 +26,7 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-primary mb-8">
-            À Propos de Notre Institut
+            À Propos de Notre Centre
           </h1>
 
           <div className="prose lg:prose-xl text-gray-600 space-y-6">
@@ -69,7 +69,7 @@ export default function AboutPage() {
 
        <footer className="bg-gray-800 text-gray-300 py-12 mt-16">
         <div className="container mx-auto px-4 md:px-6 text-center text-xs">
-            <p>&copy; {new Date().getFullYear()} Institut Imame Al Housseynou Sow. Tous droits réservés.</p>
+            <p>&copy; {new Date().getFullYear()} Centre Islamique Imam Al Housseynou Sow. Tous droits réservés.</p>
         </div>
       </footer>
     </div>

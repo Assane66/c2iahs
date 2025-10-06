@@ -42,7 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={40} height={40} />
             <span className="text-lg font-semibold text-sidebar-foreground">
-              Institut Yaye Halimatou
+              Centre Islamique
             </span>
           </div>
         </SidebarHeader>

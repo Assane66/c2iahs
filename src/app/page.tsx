@@ -121,9 +121,9 @@ export default function LandingPage() {
                     transition={{ duration: 0.8 }}
                     className="max-w-2xl text-left"
                 >
-                    <p className="text-primary font-semibold tracking-wider">BIENVENUE A</p>
+                    <p className="text-primary font-semibold tracking-wider">BIENVENUE AU</p>
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tighter mt-2 text-gray-800">
-                        INSTITUT ISLAMIQUE YAYE HALIMATOU SAADIYA
+                        Centre Islamique Imam Al Housseynou Sow
                     </h1>
                     <Button className="mt-6 bg-primary hover:bg-primary/90 text-lg px-8 py-6" onClick={() => setIsFormOpen(true)}>
                         S'INSCRIRE <ArrowRight className="ml-2 h-5 w-5" />
@@ -158,9 +158,9 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">Bienvenue à l'Institut Yaye Halimatou Saadiya</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">Bienvenue au Centre Imam Al Housseynou Sow</h2>
                  <p className="mt-4 text-gray-600">
-                  Fondé sur des valeurs de foi, d'excellence et de communauté, notre institut se consacre à offrir une éducation islamique et académique de qualité, préparant nos élèves à devenir des leaders éclairés et des citoyens responsables.
+                  Fondé en 2021 et fort de plus de 3 ans d'expérience, notre institut se consacre à offrir une éducation islamique et académique de qualité, préparant nos élèves à devenir des leaders éclairés et des citoyens responsables.
                 </p>
                 <Button asChild variant="link" className="mt-4 text-primary px-0">
                     <Link href="/about">En savoir plus sur notre mission <ArrowRight className="ml-2 h-4 w-4" /></Link>
