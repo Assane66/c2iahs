@@ -85,36 +85,6 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* About Us Section */}
-        <motion.section 
-            id="about" 
-            className="w-full py-12 md:py-24 lg:py-32"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={sectionVariants}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">Bienvenue au Centre Imam Al Housseynou Sow</h2>
-                 <p className="mt-4 text-gray-600">
-                  Fondé en 2021 et fort de plus de 3 ans d'expérience, notre institut se consacre à offrir une éducation islamique et académique de qualité, préparant nos élèves à devenir des leaders éclairés et des citoyens responsables.
-                </p>
-              </div>
-              <div className="relative h-80 w-full">
-                <Image
-                  src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759775671/1759775403161_2_opz6ot.jpg"
-                  alt="Students eating together"
-                  fill
-                  className="rounded-xl object-cover"
-                  data-ai-hint="students community"
-                />
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Results Section */}
         <motion.section 
             className="w-full py-12 md:py-24 lg:py-32 bg-secondary"
@@ -158,35 +128,6 @@ export default function LandingPage() {
             </div>
         </motion.section>
         
-        {/* Programs Section */}
-        <motion.section
-          id="programs"
-          className="w-full py-12 md:py-24 lg:py-32"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={sectionVariants}
-        >
-          <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-800">Nos Programmes</h2>
-            <div className="mt-12 grid sm:grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader className="items-center">
-                  <BookOpen className="h-12 w-12 text-primary mb-4" />
-                  <CardTitle>L'Arabe et le Coran</CardTitle>
-                  <CardDescription>Mémorisation du Coran, études arabes approfondies.</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader className="items-center">
-                  <Award className="h-12 w-12 text-primary mb-4" />
-                  <CardTitle>Système Français</CardTitle>
-                  <CardDescription>De la maternelle au lycée, suivant le programme national.</CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </div>
-        </motion.section>
       </main>
       
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
@@ -228,3 +169,5 @@ export default function LandingPage() {
     </>
   );
 }
+
+    
