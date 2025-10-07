@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, runTransaction } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,9 @@ import { useToast } from '@/hooks/use-toast';
 
 type Student = {
   id: string; // Firestore document ID
-  studentId: number; // Numeric ID
+  studentId: string; // Formatted ID like 001/24
+  numericId: number; // The numeric part of the ID
+  year: number; // The year part of the ID
   name: string;
   class: string;
   dob: string;
@@ -66,7 +68,7 @@ export default function StudentsPage() {
         ...doc.data()
       })) as Student[];
       // Sort students by their numeric ID
-      studentsList.sort((a, b) => a.studentId - b.studentId);
+      studentsList.sort((a, b) => (a.numericId ?? 0) - (b.numericId ?? 0));
       setStudents(studentsList);
     } catch (error) {
       console.error("Erreur lors de la récupération des élèves: ", error);
@@ -96,30 +98,38 @@ export default function StudentsPage() {
     };
 
     try {
-        // Use a transaction to get the next student ID
-        await runTransaction(db, async (transaction) => {
-            const counterRef = doc(db, 'counters', 'students');
-            const counterDoc = await transaction.get(counterRef);
+        const currentYear = new Date().getFullYear();
+        
+        // Check for the highest ID in the current year
+        const q = query(
+          collection(db, 'students'), 
+          orderBy('numericId', 'desc'), 
+          limit(1)
+        );
+        const querySnapshot = await getDocs(q);
 
-            let nextId = 1;
-            if (counterDoc.exists()) {
-                nextId = counterDoc.data().currentId + 1;
+        let nextId = 1;
+        if (!querySnapshot.empty) {
+            const lastStudent = querySnapshot.docs[0].data() as Student;
+            // If there are students, increment the highest ID
+            if(students.length > 0) {
+              nextId = (lastStudent.numericId || 0) + 1;
             }
+        }
+        
+        const yearShort = currentYear.toString().slice(-2);
+        const formattedId = `${String(nextId).padStart(3, '0')}/${yearShort}`;
 
-            // Create the new student document with the numeric ID
-            const newStudentRef = doc(collection(db, 'students'));
-            transaction.set(newStudentRef, {
-                ...newStudentData,
-                studentId: nextId,
-            });
-
-            // Update the counter
-            transaction.set(counterRef, { currentId: nextId }, { merge: true });
+        await addDoc(collection(db, 'students'), {
+            ...newStudentData,
+            studentId: formattedId,
+            numericId: nextId,
+            year: currentYear,
         });
         
         toast({
             title: 'Succès',
-            description: 'Élève ajouté avec succès !',
+            description: `Élève ajouté avec l'ID ${formattedId} !`,
         });
         fetchStudents(); // Refresh list
         setOpen(false);
@@ -313,3 +323,4 @@ export default function StudentsPage() {
     </div>
   );
 }
+
