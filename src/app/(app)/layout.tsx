@@ -28,7 +28,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
-import { Icons } from '@/components/icons';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -37,99 +36,98 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={40} height={40} />
-            <span className="text-lg font-semibold text-sidebar-foreground">
-              Centre Islamique
-            </span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <Link href="/dashboard" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/dashboard')}
-                  tooltip="Tableau de Bord"
-                >
-                  <LayoutDashboard />
-                  Tableau de Bord
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/students" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/students')}
-                  tooltip="Élèves"
-                >
-                  <Users />
-                  Élèves
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <Link href="/classes" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/classes')}
-                  tooltip="Classes"
-                >
-                  <School />
-                  Classes
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/payments" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/payments')}
-                  tooltip="Paiements"
-                >
-                  <CreditCard />
-                  Paiements
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <Link href="/unpaid" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/unpaid')}
-                  tooltip="Non Payé"
-                >
-                  <UserX />
-                  Non Payé
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/users" passHref>
-                <SidebarMenuButton
-                  isActive={isActive('/users')}
-                  tooltip="Utilisateurs"
-                >
-                  <UserCog />
-                  Utilisateurs
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          {/* You can add footer content here if needed */}
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
-          <SidebarTrigger className="md:hidden" />
-          <div className="w-full flex-1">
-            {/* Can add breadcrumbs or search here */}
-          </div>
-          <UserNav />
-        </header>
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
-      </SidebarInset>
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar>
+          <SidebarHeader>
+            <div className="flex items-center gap-2">
+              <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759773957/logo_iiahs_vflfla.png" alt="Logo" width={40} height={40} />
+              <span className="text-lg font-semibold text-sidebar-foreground">
+                Centre Islamique
+              </span>
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Link href="/dashboard" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/dashboard')}
+                    tooltip="Tableau de Bord"
+                  >
+                    <LayoutDashboard />
+                    Tableau de Bord
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/students" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/students')}
+                    tooltip="Élèves"
+                  >
+                    <Users />
+                    Élèves
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/classes" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/classes')}
+                    tooltip="Classes"
+                  >
+                    <School />
+                    Classes
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/payments" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/payments')}
+                    tooltip="Paiements"
+                  >
+                    <CreditCard />
+                    Paiements
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/unpaid" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/unpaid')}
+                    tooltip="Non Payé"
+                  >
+                    <UserX />
+                    Non Payé
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/users" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/users')}
+                    tooltip="Utilisateurs"
+                  >
+                    <UserCog />
+                    Utilisateurs
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+            {/* You can add footer content here if needed */}
+          </SidebarFooter>
+        </Sidebar>
+        <div className="flex flex-1 flex-col overflow-y-auto">
+          <header className="flex h-14 items-center justify-end gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
+            <SidebarTrigger className="md:hidden" />
+            <UserNav />
+          </header>
+          <main className="flex-1 p-4 sm:p-6">{children}</main>
+        </div>
+      </div>
     </SidebarProvider>
   );
 }
