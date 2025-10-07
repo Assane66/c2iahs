@@ -92,7 +92,7 @@ function SiteFooter() {
                 <div>
                     <h3 className="font-bold text-white mb-4">CONTACTEZ-NOUS</h3>
                     <div className="flex flex-col gap-2">
-                        <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span>+221 78 430 30 18 / +221 78 163 52 09</span></p>
+                        <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> <span>+221 75 336 25 39 / +221 78 163 52 09</span></p>
                         <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> <span>c2iahs@gmail.com</span></p>
                         <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <span>Tivaouane Peulh, QRT Bayal Ba</span></p>
                     </div>
@@ -180,5 +180,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    
