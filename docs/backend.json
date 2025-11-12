@@ -1,0 +1,187 @@
+{
+  "entities": {
+    "student": {
+      "title": "Student",
+      "description": "A student enrolled in the school",
+      "type": "object",
+      "properties": {
+        "matricule": {
+          "type": "string",
+          "description": "Auto-generated unique ID (e.g., ELV2025-001)"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Student's first name"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Student's last name"
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of birth"
+        },
+        "pob": {
+          "type": "string",
+          "description": "Place of birth"
+        },
+        "classId": {
+          "type": "string",
+          "description": "ID of the class the student is in"
+        },
+        "sex": {
+          "type": "string",
+          "enum": ["Masculin", "Féminin"]
+        },
+        "address": {
+          "type": "string",
+          "description": "Student's home address (optional)"
+        },
+        "parentPhone": {
+          "type": "string",
+          "description": "Parent's contact phone number (optional)"
+        },
+        "registrationDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Auto-generated date of registration"
+        },
+        "numericId": {
+          "type": "number",
+          "description": "The numeric part of the matricule for sorting"
+        },
+        "year": {
+            "type": "number",
+            "description": "The year part of the matricule"
+        }
+      },
+      "required": ["matricule", "firstName", "lastName", "dob", "pob", "classId", "sex", "registrationDate", "numericId", "year"]
+    },
+    "class": {
+      "title": "Class",
+      "description": "A class in the school",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the class (e.g., CM2)"
+        },
+        "teacherId": {
+          "type": "string",
+          "description": "ID of the main teacher for the class"
+        },
+        "academicYear": {
+          "type": "string",
+          "description": "The academic year (e.g., 2024-2025)"
+        }
+      },
+      "required": ["name", "academicYear"]
+    },
+    "teacher": {
+        "title": "Teacher",
+        "description": "A teacher in the school",
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "Full name of the teacher"
+            },
+            "email": {
+                "type": "string",
+                "format": "email",
+                "description": "Teacher's email address"
+            }
+        },
+        "required": ["name", "email"]
+    },
+    "payment": {
+      "title": "Payment",
+      "description": "A payment record for a student",
+      "type": "object",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "description": "ID of the student making the payment"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount paid"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for the payment (e.g., scolarité, uniforme)"
+        },
+        "paymentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the payment was made"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Payé", "En attente"],
+          "description": "Status of the payment"
+        },
+        "month": {
+          "type": "string",
+          "description": "Month the payment is for (YYYY-MM)"
+        }
+      },
+      "required": ["studentId", "amount", "reason", "paymentDate", "status", "month"]
+    },
+    "user": {
+      "title": "User",
+      "description": "A user of the admin panel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["Admin", "Professeur", "Comptable", "Élève"]
+        }
+      },
+      "required": ["name", "email", "role"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": {
+        "$ref": "#/entities/student"
+      },
+      "description": "Stores individual student records."
+    },
+    "/classes/{classId}": {
+      "schema": {
+        "$ref": "#/entities/class"
+      },
+      "description": "Stores school class records."
+    },
+    "/teachers/{teacherId}": {
+      "schema": {
+        "$ref": "#/entities/teacher"
+      },
+      "description": "Stores teacher records."
+    },
+    "/payments/{paymentId}": {
+      "schema": {
+        "$ref": "#/entities/payment"
+      },
+      "description": "Stores payment history."
+    },
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/user"
+      },
+      "description": "Stores user accounts for the admin panel."
+    }
+  }
+}

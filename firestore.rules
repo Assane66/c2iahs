@@ -21,6 +21,22 @@ service cloud.firestore {
       allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
+    // Classes collection:
+    // Any authenticated user can read the list of classes.
+    // Only Admins can create, update, or delete classes.
+    match /classes/{classId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+
+    // Teachers collection:
+    // Any authenticated user can read the list of teachers.
+    // Only Admins can create, update, or delete teachers.
+    match /teachers/{teacherId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+
     // Payments collection:
     // Any authenticated user can read payments.
     // Only Admins can create, update, or delete payments.
