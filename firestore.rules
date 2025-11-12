@@ -1,56 +1,47 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny all access
-    match /{document=**} {
-      allow read, write: if false;
+    // Helper function to check if the user is an Admin
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
-    // Allow admins to read/write everything
-    match /{document=**} {
-      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
-    }
-
-    // Students collection:
-    // Any authenticated user can read the list of students.
-    // Only Admins can create, update, or delete students.
+    // Students collection
+    // Admins can do anything. Authenticated users can read.
     match /students/{studentId} {
       allow read: if request.auth != null;
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow write: if isAdmin();
     }
 
-    // Classes collection:
-    // Any authenticated user can read the list of classes.
-    // Only Admins can create, update, or delete classes.
+    // Classes collection
+    // Admins can do anything. Authenticated users can read.
     match /classes/{classId} {
       allow read: if request.auth != null;
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow write: if isAdmin();
     }
-
-    // Teachers collection:
-    // Any authenticated user can read the list of teachers.
-    // Only Admins can create, update, or delete teachers.
+    
+    // Teachers collection
+    // Admins can do anything. Authenticated users can read.
     match /teachers/{teacherId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+        allow read: if request.auth != null;
+        allow write: if isAdmin();
     }
 
-    // Payments collection:
-    // Any authenticated user can read payments.
-    // Only Admins can create, update, or delete payments.
+    // Payments collection
+    // Admins can do anything. Authenticated users can read.
     match /payments/{paymentId} {
       allow read: if request.auth != null;
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow write: if isAdmin();
     }
 
-    // Users collection:
-    // Authenticated users can read the list of users.
-    // Only Admins can create, update, or delete users.
+    // Users collection
+    // Admins can do anything. Authenticated users can read their own data.
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
+      allow write: if isAdmin();
     }
   }
 }

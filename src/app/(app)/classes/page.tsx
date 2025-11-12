@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
   Card,
@@ -20,58 +20,116 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ChevronRight, Search } from 'lucide-react';
+import { ChevronRight, PlusCircle, Search } from 'lucide-react';
 
 type ClassInfo = {
   name: string;
   studentCount: number;
 };
 
+type Class = {
+    id: string;
+    name: string;
+    academicYear: string;
+}
+
 export default function ClassesPage() {
-  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [classesInfo, setClassesInfo] = useState<ClassInfo[]>([]);
+  const [allClasses, setAllClasses] = useState<Class[]>([]);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  
+  const currentYear = new Date().getFullYear();
+  const academicYear = `${currentYear}-${currentYear + 1}`;
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'students'));
-        const classMap = new Map<string, number>();
+  const fetchClassesAndStudents = async () => {
+    setLoading(true);
+    try {
+        // Fetch all defined classes
+        const classesSnapshot = await getDocs(collection(db, 'classes'));
+        const classesList = classesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Class[];
+        setAllClasses(classesList.sort((a, b) => a.name.localeCompare(b.name)));
 
-        querySnapshot.docs.forEach(doc => {
-          const studentData = doc.data();
-          const className = studentData.class;
-          if (className) {
-            classMap.set(className, (classMap.get(className) || 0) + 1);
-          }
+        // Fetch students to count them per class
+        const studentsSnapshot = await getDocs(collection(db, 'students'));
+        const studentCountMap = new Map<string, number>();
+
+        studentsSnapshot.forEach(doc => {
+            const studentData = doc.data();
+            const classId = studentData.classId;
+            if (classId) {
+                studentCountMap.set(classId, (studentCountMap.get(classId) || 0) + 1);
+            }
         });
-
-        const classesList: ClassInfo[] = Array.from(classMap, ([name, studentCount]) => ({
-          name,
-          studentCount,
+        
+        const classInfoList = classesList.map(c => ({
+            name: c.name,
+            studentCount: studentCountMap.get(c.id) || 0,
         }));
         
-        classesList.sort((a, b) => a.name.localeCompare(b.name));
-        setClasses(classesList);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des classes: ", error);
-        toast({
-          title: 'Erreur',
-          description: "Impossible de charger la liste des classes.",
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+        setClassesInfo(classInfoList);
 
-    fetchClasses();
+    } catch (error) {
+        console.error("Erreur lors de la récupération des données: ", error);
+        toast({
+            title: 'Erreur',
+            description: "Impossible de charger les classes.",
+            variant: 'destructive',
+        });
+    } finally {
+        setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchClassesAndStudents();
   }, [toast]);
 
-  const filteredClasses = classes.filter(c =>
+  const handleAddClass = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const newClassData = {
+        name: (form.elements.namedItem('className') as HTMLInputElement)?.value,
+        academicYear: (form.elements.namedItem('academicYear') as HTMLInputElement)?.value,
+    };
+    
+    try {
+        await addDoc(collection(db, 'classes'), newClassData);
+        toast({
+            title: 'Succès',
+            description: `La classe ${newClassData.name} a été ajoutée avec succès !`,
+        });
+        fetchClassesAndStudents(); // Refresh list
+        setOpen(false); // Close dialog
+        form.reset();
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de la classe: ", error);
+        toast({
+            title: 'Erreur',
+            description: "Impossible d'ajouter la classe.",
+            variant: 'destructive',
+        });
+    }
+  };
+
+
+  const filteredClasses = classesInfo.filter(c =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -81,9 +139,37 @@ export default function ClassesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
           <p className="text-muted-foreground">
-            Une liste des classes basées sur les élèves inscrits.
+            Gérez les classes de votre établissement.
           </p>
         </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une Classe
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Créer une Nouvelle Classe</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddClass}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="className" className="text-right">Nom de la classe</Label>
+                  <Input id="className" name="className" placeholder="Ex: CM2" className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="academicYear" className="text-right">Année Scolaire</Label>
+                  <Input id="academicYear" name="academicYear" defaultValue={academicYear} className="col-span-3" required />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="secondary">Annuler</Button></DialogClose>
+                <Button type="submit">Ajouter la Classe</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
@@ -92,7 +178,7 @@ export default function ClassesPage() {
             <div>
               <CardTitle>Liste des Classes</CardTitle>
               <CardDescription>
-                Chaque classe et le nombre d'élèves correspondant.
+                {filteredClasses.length} classes trouvées.
               </CardDescription>
             </div>
             <div className="relative w-full max-w-sm">
@@ -142,7 +228,7 @@ export default function ClassesPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={3} className="h-24 text-center">
-                    Aucune classe trouvée. Ajoutez des élèves pour voir les classes ici.
+                    Aucune classe trouvée. Ajoutez des classes pour commencer.
                   </TableCell>
                 </TableRow>
               )}
