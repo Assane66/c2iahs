@@ -26,22 +26,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type Student = {
   id: string;
-  studentId: number;
-  name: string;
-  class: string;
-  contact: string;
+  matricule: string;
+  firstName: string;
+  lastName: string;
+  classId: string;
+  parentPhone?: string;
 };
 
 type Payment = {
-  studentName: string;
+  studentId: string;
   month: string; // YYYY-MM
 };
+
+type Class = {
+  id: string;
+  name: string;
+}
 
 const currentYear = new Date().getFullYear();
 const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
 
 export default function UnpaidStudentsPage() {
   const [unpaidStudents, setUnpaidStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
@@ -63,22 +70,26 @@ export default function UnpaidStudentsPage() {
     try {
       const targetMonth = `${selectedYear}-${selectedMonth}`;
       
+      const classesSnapshot = await getDocs(collection(db, 'classes'));
+      const classMap = new Map(classesSnapshot.docs.map(doc => [doc.id, doc.data().name]));
+      setClasses(classMap);
+
       const studentsSnapshot = await getDocs(collection(db, 'students'));
       const allStudents = studentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       })) as Student[];
 
-      const paymentsQuery = query(collection(db, 'payments'), where('month', '==', targetMonth));
+      const paymentsQuery = query(collection(db, 'payments'), where('month', '==', targetMonth), where('status', '==', 'Payé'));
       const paymentsSnapshot = await getDocs(paymentsQuery);
       
-      const paidStudentNames = new Set(
-        paymentsSnapshot.docs.map(doc => (doc.data() as Payment).studentName)
+      const paidStudentIds = new Set(
+        paymentsSnapshot.docs.map(doc => (doc.data() as Payment).studentId)
       );
       
-      const unpaid = allStudents.filter(student => !paidStudentNames.has(student.name));
+      const unpaid = allStudents.filter(student => !paidStudentIds.has(student.id));
       
-      unpaid.sort((a, b) => a.studentId - b.studentId);
+      unpaid.sort((a, b) => (a.matricule || '').localeCompare(b.matricule || ''));
       setUnpaidStudents(unpaid);
 
     } catch (error) {
@@ -98,11 +109,15 @@ export default function UnpaidStudentsPage() {
   }, [fetchUnpaidStudents]);
   
   const selectedMonthLabel = months.find(m => m.value === selectedMonth)?.label || '';
+  
+  const getClassName = (classId: string) => classes.get(classId) || 'N/A';
 
-  const filteredUnpaidStudents = unpaidStudents.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.class.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUnpaidStudents = unpaidStudents.filter(student => {
+      const studentName = `${student.firstName} ${student.lastName}`.toLowerCase();
+      const className = getClassName(student.classId).toLowerCase();
+      const search = searchQuery.toLowerCase();
+      return studentName.includes(search) || className.includes(search);
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -134,7 +149,7 @@ export default function UnpaidStudentsPage() {
             </div>
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher un élève..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <Input type="search" placeholder="Rechercher par nom, classe..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
@@ -142,10 +157,10 @@ export default function UnpaidStudentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Nom</TableHead>
+                <TableHead>Matricule</TableHead>
+                <TableHead>Nom Complet</TableHead>
                 <TableHead>Classe</TableHead>
-                <TableHead>Contact</TableHead>
+                <TableHead>Contact Parent</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -154,10 +169,10 @@ export default function UnpaidStudentsPage() {
               ) : filteredUnpaidStudents.length > 0 ? (
                 filteredUnpaidStudents.map((student) => (
                   <TableRow key={student.id}>
-                    <TableCell>{student.studentId}</TableCell>
-                    <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell>{student.class}</TableCell>
-                    <TableCell>{student.contact}</TableCell>
+                    <TableCell>{student.matricule}</TableCell>
+                    <TableCell className="font-medium">{`${student.firstName} ${student.lastName}`}</TableCell>
+                    <TableCell>{getClassName(student.classId)}</TableCell>
+                    <TableCell>{student.parentPhone || 'N/A'}</TableCell>
                   </TableRow>
                 ))
               ) : (

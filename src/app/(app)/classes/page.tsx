@@ -36,6 +36,7 @@ import Link from 'next/link';
 import { ChevronRight, PlusCircle, Search } from 'lucide-react';
 
 type ClassInfo = {
+  id: string;
   name: string;
   studentCount: number;
 };
@@ -48,7 +49,6 @@ type Class = {
 
 export default function ClassesPage() {
   const [classesInfo, setClassesInfo] = useState<ClassInfo[]>([]);
-  const [allClasses, setAllClasses] = useState<Class[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,12 +60,10 @@ export default function ClassesPage() {
   const fetchClassesAndStudents = async () => {
     setLoading(true);
     try {
-        // Fetch all defined classes
         const classesSnapshot = await getDocs(collection(db, 'classes'));
         const classesList = classesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Class[];
-        setAllClasses(classesList.sort((a, b) => a.name.localeCompare(b.name)));
+        classesList.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Fetch students to count them per class
         const studentsSnapshot = await getDocs(collection(db, 'students'));
         const studentCountMap = new Map<string, number>();
 
@@ -78,6 +76,7 @@ export default function ClassesPage() {
         });
         
         const classInfoList = classesList.map(c => ({
+            id: c.id,
             name: c.name,
             studentCount: studentCountMap.get(c.id) || 0,
         }));
@@ -109,6 +108,15 @@ export default function ClassesPage() {
         academicYear: (form.elements.namedItem('academicYear') as HTMLInputElement)?.value,
     };
     
+    if (!newClassData.name || !newClassData.academicYear) {
+      toast({
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
         await addDoc(collection(db, 'classes'), newClassData);
         toast({
@@ -211,15 +219,15 @@ export default function ClassesPage() {
                 </TableRow>
               ) : filteredClasses.length > 0 ? (
                 filteredClasses.map((c) => (
-                   <TableRow key={c.name} className="group hover:bg-muted/50">
+                   <TableRow key={c.id} className="group hover:bg-muted/50">
                     <TableCell className="font-medium">
-                      <Link href={`/classes/${encodeURIComponent(c.name)}`} className="hover:underline">
+                      <Link href={`/classes/${encodeURIComponent(c.id)}`} className="hover:underline">
                         {c.name}
                       </Link>
                     </TableCell>
                     <TableCell className="text-right">{c.studentCount}</TableCell>
                     <TableCell className="text-right">
-                       <Link href={`/classes/${encodeURIComponent(c.name)}`}>
+                       <Link href={`/classes/${encodeURIComponent(c.id)}`}>
                         <ChevronRight className="h-4 w-4 inline-block opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     </TableCell>

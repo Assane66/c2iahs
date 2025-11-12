@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
   Card,
@@ -26,35 +26,50 @@ import Link from 'next/link';
 import { ArrowLeft, Search } from 'lucide-react';
 
 type Student = {
-  id: string; 
-  studentId: number; 
-  name: string;
-  class: string;
+  id: string;
+  matricule: string;
+  firstName: string;
+  lastName: string;
   dob: string;
   pob: string;
-  contact: string;
+  parentPhone?: string;
 };
 
 type ClassDetailsPageProps = {
   params: {
-    className: string;
+    className: string; // This is actually the class ID
   };
 };
 
 export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
   const [students, setStudents] = useState<Student[]>([]);
+  const [className, setClassName] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
-  const className = decodeURIComponent(params.className);
+  const classId = decodeURIComponent(params.className);
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      if (!className) return;
+    const fetchClassDetailsAndStudents = async () => {
+      if (!classId) return;
 
       try {
+        // Fetch class name
+        const classDocRef = doc(db, 'classes', classId);
+        const classDoc = await getDoc(classDocRef);
+        if (classDoc.exists()) {
+          setClassName(classDoc.data().name);
+        } else {
+           toast({
+            title: 'Erreur',
+            description: "Classe non trouvée.",
+            variant: 'destructive',
+          });
+        }
+        
+        // Fetch students in that class
         const studentsRef = collection(db, 'students');
-        const q = query(studentsRef, where('class', '==', className));
+        const q = query(studentsRef, where('classId', '==', classId));
         const querySnapshot = await getDocs(q);
         
         const studentsList = querySnapshot.docs.map(doc => ({
@@ -62,8 +77,9 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
           ...doc.data()
         })) as Student[];
         
-        studentsList.sort((a, b) => a.studentId - b.studentId);
+        studentsList.sort((a, b) => (a.matricule || '').localeCompare(b.matricule || ''));
         setStudents(studentsList);
+
       } catch (error) {
         console.error("Erreur lors de la récupération des élèves: ", error);
         toast({
@@ -76,11 +92,11 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
       }
     };
 
-    fetchStudents();
-  }, [className, toast]);
+    fetchClassDetailsAndStudents();
+  }, [classId, toast]);
 
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+    `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -125,11 +141,11 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Nom</TableHead>
+                <TableHead>Matricule</TableHead>
+                <TableHead>Nom Complet</TableHead>
                 <TableHead>Date de Naissance</TableHead>
                 <TableHead>Lieu de Naissance</TableHead>
-                <TableHead>Contact</TableHead>
+                <TableHead>Contact Parent</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -142,11 +158,11 @@ export default function ClassDetailsPage({ params }: ClassDetailsPageProps) {
               ) : filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
                   <TableRow key={student.id}>
-                    <TableCell>{student.studentId}</TableCell>
-                    <TableCell className="font-medium">{student.name}</TableCell>
+                    <TableCell>{student.matricule}</TableCell>
+                    <TableCell className="font-medium">{`${student.firstName} ${student.lastName}`}</TableCell>
                     <TableCell>{student.dob}</TableCell>
                     <TableCell>{student.pob}</TableCell>
-                    <TableCell>{student.contact}</TableCell>
+                    <TableCell>{student.parentPhone || 'N/A'}</TableCell>
                   </TableRow>
                 ))
               ) : (

@@ -40,21 +40,19 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Students and Classes
+        // Fetch Students
         const studentsSnapshot = await getDocs(collection(db, 'students'));
         const studentsCount = studentsSnapshot.size;
         setTotalStudents(studentsCount);
 
-        const classSet = new Set<string>();
-        studentsSnapshot.forEach(doc => {
-          classSet.add(doc.data().class);
-        });
-        setActiveClasses(classSet.size);
+        // Fetch Classes
+        const classesSnapshot = await getDocs(collection(db, 'classes'));
+        setActiveClasses(classesSnapshot.size);
 
         // Fetch Payments
         const paymentsSnapshot = await getDocs(collection(db, 'payments'));
         let revenue = 0;
-        let pending = 0;
+        let pendingCount = 0;
         const monthlyRevenue = new Array(12).fill(0);
 
         paymentsSnapshot.forEach(doc => {
@@ -63,18 +61,18 @@ export default function DashboardPage() {
           
           if (payment.status === 'Payé') {
             revenue += amount;
-            if (payment.date) {
-                const paymentDate = new Date(payment.date);
+            if (payment.paymentDate) {
+                const paymentDate = new Date(payment.paymentDate);
                 const month = paymentDate.getMonth();
                 monthlyRevenue[month] += amount;
             }
-          } else if (payment.status === 'En attente' || payment.status === 'En retard') {
-            pending++;
+          } else if (payment.status === 'En attente') {
+            pendingCount++;
           }
         });
 
         setTotalRevenue(revenue);
-        setPendingPayments(pending);
+        setPendingPayments(pendingCount);
 
         const newChartData = initialChartData.map((monthData, index) => ({
             ...monthData,
@@ -143,7 +141,7 @@ export default function DashboardPage() {
           <CardContent>
              {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{activeClasses}</div>}
             <p className="text-xs text-muted-foreground">
-              Total des classes uniques
+              Total des classes créées
             </p>
           </CardContent>
         </Card>
@@ -157,7 +155,7 @@ export default function DashboardPage() {
           <CardContent>
             {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{pendingPayments}</div>}
             <p className="text-xs text-muted-foreground">
-             En attente ou en retard
+             Nombre de paiements non confirmés
             </p>
           </CardContent>
         </Card>
