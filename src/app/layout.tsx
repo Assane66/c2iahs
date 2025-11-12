@@ -165,8 +165,8 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning style={{ overflowX: 'hidden' }}>
       <head>
-        <title>SchoolZenith Admin</title>
-        <meta name="description" content="Panneau d'administration pour SchoolZenith" />
+        <title>Centre Islamique Institut Al Housseynou Sow</title>
+        <meta name="description" content="Panneau d'administration pour le Centre Islamique Institut Al Housseynou Sow" />
         <link rel="icon" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
