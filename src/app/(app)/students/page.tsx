@@ -2,9 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,13 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -37,44 +30,74 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Student = {
   id: string; // Firestore document ID
-  studentId: string; // Formatted ID like 001/24
-  numericId: number; // The numeric part of the ID
-  year: number; // The year part of the ID
-  name: string;
-  class: string;
+  matricule: string;
+  numericId: number;
+  year: number;
+  firstName: string;
+  lastName: string;
   dob: string;
   pob: string;
-  contact: string;
+  classId: string;
+  sex: 'Masculin' | 'Féminin';
+  address?: string;
+  parentPhone?: string;
+  registrationDate: string;
+};
+
+type Class = {
+  id: string;
+  name: string;
 };
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const fetchStudents = async () => {
+  const fetchStudentsAndClasses = async () => {
+    setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, 'students'));
-      const studentsList = querySnapshot.docs.map(doc => ({
+      // Fetch classes
+      const classesSnapshot = await getDocs(collection(db, 'classes'));
+      const classesList = classesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Class[];
+      setClasses(classesList);
+
+      // Fetch students
+      const studentsSnapshot = await getDocs(query(collection(db, 'students'), orderBy('numericId', 'asc')));
+      const studentsList = studentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Student[];
-      // Sort students by their numeric ID
-      studentsList.sort((a, b) => (a.numericId ?? 0) - (b.numericId ?? 0));
       setStudents(studentsList);
     } catch (error) {
-      console.error("Erreur lors de la récupération des élèves: ", error);
+      console.error("Erreur lors de la récupération des données: ", error);
       toast({
         title: 'Erreur',
-        description: "Impossible de charger la liste des élèves.",
+        description: "Impossible de charger la liste des élèves ou des classes.",
         variant: 'destructive',
       });
     } finally {
@@ -83,26 +106,35 @@ export default function StudentsPage() {
   };
 
   useEffect(() => {
-    fetchStudents();
+    fetchStudentsAndClasses();
   }, []);
 
   const handleAddStudent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const newStudentData = {
-      name: (form.elements.namedItem('name') as HTMLInputElement)?.value,
-      class: (form.elements.namedItem('class') as HTMLInputElement)?.value,
+      firstName: (form.elements.namedItem('firstName') as HTMLInputElement)?.value,
+      lastName: (form.elements.namedItem('lastName') as HTMLInputElement)?.value,
       dob: (form.elements.namedItem('dob') as HTMLInputElement)?.value,
       pob: (form.elements.namedItem('pob') as HTMLInputElement)?.value,
-      contact: (form.elements.namedItem('contact') as HTMLInputElement)?.value,
+      classId: (form.elements.namedItem('classId') as HTMLInputElement)?.value,
+      sex: (form.elements.namedItem('sex') as HTMLInputElement)?.value as Student['sex'],
+      address: (form.elements.namedItem('address') as HTMLInputElement)?.value,
+      parentPhone: (form.elements.namedItem('parentPhone') as HTMLInputElement)?.value,
     };
+
+    if (!newStudentData.classId) {
+        toast({ title: "Erreur", description: "Veuillez sélectionner une classe.", variant: "destructive" });
+        return;
+    }
 
     try {
         const currentYear = new Date().getFullYear();
-        
-        // Check for the highest ID in the current year
+        const yearPrefix = `ELV${currentYear}`;
+
         const q = query(
           collection(db, 'students'), 
+          where('year', '==', currentYear),
           orderBy('numericId', 'desc'), 
           limit(1)
         );
@@ -110,28 +142,25 @@ export default function StudentsPage() {
 
         let nextId = 1;
         if (!querySnapshot.empty) {
-            const lastStudent = querySnapshot.docs[0].data() as Student;
-            // If there are students, increment the highest ID
-            if(students.length > 0) {
-              nextId = (lastStudent.numericId || 0) + 1;
-            }
+            const lastStudent = querySnapshot.docs[0].data();
+            nextId = (lastStudent.numericId || 0) + 1;
         }
         
-        const yearShort = currentYear.toString().slice(-2);
-        const formattedId = `${String(nextId).padStart(3, '0')}/${yearShort}`;
+        const formattedId = `${yearPrefix}-${String(nextId).padStart(3, '0')}`;
 
         await addDoc(collection(db, 'students'), {
             ...newStudentData,
-            studentId: formattedId,
+            matricule: formattedId,
             numericId: nextId,
             year: currentYear,
+            registrationDate: new Date().toISOString().split('T')[0]
         });
         
         toast({
             title: 'Succès',
-            description: `Élève ajouté avec l'ID ${formattedId} !`,
+            description: `Élève ajouté avec le matricule ${formattedId} !`,
         });
-        fetchStudents(); // Refresh list
+        fetchStudentsAndClasses(); // Refresh list
         setOpen(false);
         form.reset();
     } catch (error) {
@@ -144,7 +173,6 @@ export default function StudentsPage() {
     }
   };
 
-
   const handleDeleteStudent = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'students', id));
@@ -152,7 +180,7 @@ export default function StudentsPage() {
         title: 'Succès',
         description: 'Élève supprimé avec succès !',
       });
-      fetchStudents(); // Refresh list
+      fetchStudentsAndClasses(); // Refresh list
     } catch (error) {
       console.error("Erreur lors de la suppression de l'élève: ", error);
       toast({
@@ -164,10 +192,13 @@ export default function StudentsPage() {
   };
   
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.class.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    String(student.studentId).includes(searchQuery)
+    `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.matricule.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
+  const getClassName = (classId: string) => {
+    return classes.find(c => c.id === classId)?.name || 'N/A';
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -184,48 +215,59 @@ export default function StudentsPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Élève
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Ajouter un Nouvel Élève</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleAddStudent}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Nom
-                  </Label>
-                  <Input id="name" name="name" className="col-span-3" required />
+                  <Label htmlFor="firstName" className="text-right">Prénom</Label>
+                  <Input id="firstName" name="firstName" className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="class" className="text-right">
-                    Classe
-                  </Label>
-                  <Input id="class" name="class" className="col-span-3" required />
+                  <Label htmlFor="lastName" className="text-right">Nom</Label>
+                  <Input id="lastName" name="lastName" className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="dob" className="text-right">
-                    Date de Naissance
-                  </Label>
+                  <Label htmlFor="dob" className="text-right">Date de Naissance</Label>
                   <Input id="dob" name="dob" type="date" className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="pob" className="text-right">
-                    Lieu de Naissance
-                  </Label>
+                  <Label htmlFor="pob" className="text-right">Lieu de Naissance</Label>
                   <Input id="pob" name="pob" className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="contact" className="text-right">
-                    Contact
-                  </Label>
-                  <Input id="contact" name="contact" className="col-span-3" required />
+                    <Label htmlFor="classId" className="text-right">Classe</Label>
+                    <Select name="classId" required>
+                        <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner une classe" /></SelectTrigger>
+                        <SelectContent>
+                            {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="sex" className="text-right">Sexe</Label>
+                  <Select name="sex" required>
+                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner le sexe" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Masculin">Masculin</SelectItem>
+                        <SelectItem value="Féminin">Féminin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="address" className="text-right">Adresse</Label>
+                  <Input id="address" name="address" className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="parentPhone" className="text-right">Tél. Parent</Label>
+                  <Input id="parentPhone" name="parentPhone" className="col-span-3" />
                 </div>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Annuler
-                  </Button>
+                  <Button type="button" variant="secondary">Annuler</Button>
                 </DialogClose>
                 <Button type="submit">Ajouter l'Élève</Button>
               </DialogFooter>
@@ -240,14 +282,14 @@ export default function StudentsPage() {
             <div>
               <CardTitle>Liste des Élèves</CardTitle>
               <CardDescription>
-                Une liste de tous les élèves de l'école.
+                Une liste de tous les élèves de l'école. Total: {filteredStudents.length}
               </CardDescription>
             </div>
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Rechercher par nom, classe, ID..."
+                placeholder="Rechercher par nom, matricule..."
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -259,12 +301,11 @@ export default function StudentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Nom</TableHead>
+                <TableHead>Matricule</TableHead>
+                <TableHead>Nom Complet</TableHead>
                 <TableHead>Classe</TableHead>
                 <TableHead>Date de Naissance</TableHead>
-                <TableHead>Lieu de Naissance</TableHead>
-                <TableHead>Contact</TableHead>
+                <TableHead>Sexe</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -273,45 +314,47 @@ export default function StudentsPage() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Chargement...
                   </TableCell>
                 </TableRow>
               ) : filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
                   <TableRow key={student.id}>
-                    <TableCell>{student.studentId}</TableCell>
-                    <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell>{student.class}</TableCell>
+                    <TableCell>{student.matricule}</TableCell>
+                    <TableCell className="font-medium">{`${student.firstName} ${student.lastName}`}</TableCell>
+                    <TableCell>{getClassName(student.classId)}</TableCell>
                     <TableCell>{student.dob}</TableCell>
-                    <TableCell>{student.pob}</TableCell>
-                    <TableCell>{student.contact}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Modifier</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteStudent(student.id)}>
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell>{student.sex}</TableCell>
+                    <TableCell className="text-right">
+                       <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">Supprimer</span>
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      Cette action est irréversible. Le dossier de l'élève <strong>{student.firstName} {student.lastName}</strong> sera définitivement supprimé.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteStudent(student.id)}>
+                                      Supprimer
+                                  </AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Aucun élève trouvé.
                   </TableCell>
                 </TableRow>
@@ -323,3 +366,5 @@ export default function StudentsPage() {
     </div>
   );
 }
+
+    
