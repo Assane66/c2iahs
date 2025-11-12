@@ -166,7 +166,11 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning style={{ overflowX: 'hidden' }}>
       <head>
         <title>Centre Islamique Institut Al Housseynou Sow</title>
-        <meta name="description" content="Panneau d'administration pour le Centre Islamique Institut Al Housseynou Sow" />
+        <meta name="description" content="Découvrez notre vision, nos programmes et rejoignez-nous à Tivaouane Peulh." />
+        <meta property="og:title" content="Centre Islamique Institut Al Housseynou Sow" />
+        <meta property="og:description" content="Découvrez notre vision, nos programmes et rejoignez-nous à Tivaouane Peulh." />
+        <meta property="og:url" content="https://c2iahs.com/" />
+        <meta property="og:image" content="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" />
         <link rel="icon" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
