@@ -10,37 +10,36 @@ service cloud.firestore {
     }
 
     // Students collection
-    // Admins can do anything. Authenticated users can read and write.
+    // Any authenticated user can read and write for now for easier development.
     match /students/{studentId} {
       allow read, write: if request.auth != null;
     }
 
     // Classes collection
-    // Any authenticated user can read and write for now.
-    // We will restrict this to Admins later.
+    // Any authenticated user can read and write for now for easier development.
     match /classes/{classId} {
       allow read, write: if request.auth != null;
     }
     
     // Teachers collection
-    // Admins can do anything. Authenticated users can read.
+    // Any authenticated user can read and write for now for easier development.
     match /teachers/{teacherId} {
-        allow read: if request.auth != null;
-        allow write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
 
     // Payments collection
-    // Admins can do anything. Authenticated users can read.
+    // Any authenticated user can read and write for now for easier development.
     match /payments/{paymentId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
 
     // Users collection
-    // Admins can do anything. Authenticated users can read their own data.
+    // Admins can write, authenticated users can only read their own data.
     match /users/{userId} {
       allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
       allow write: if isAdmin();
     }
   }
 }
+
+    

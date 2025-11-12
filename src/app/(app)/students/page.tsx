@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,7 +50,6 @@ type Student = {
   id: string; // Firestore document ID
   matricule: string;
   numericId: number;
-  year: number;
   firstName: string;
   lastName: string;
   dob: string;
@@ -133,8 +132,7 @@ export default function StudentsPage() {
         const yearPrefix = `ELV${currentYear}`;
 
         const q = query(
-          collection(db, 'students'), 
-          where('year', '==', currentYear),
+          collection(db, 'students'),
           orderBy('numericId', 'desc'), 
           limit(1)
         );
@@ -143,7 +141,9 @@ export default function StudentsPage() {
         let nextId = 1;
         if (!querySnapshot.empty) {
             const lastStudent = querySnapshot.docs[0].data();
-            nextId = (lastStudent.numericId || 0) + 1;
+            if(lastStudent.matricule.startsWith(yearPrefix)) {
+                nextId = (lastStudent.numericId || 0) + 1;
+            }
         }
         
         const formattedId = `${yearPrefix}-${String(nextId).padStart(3, '0')}`;
@@ -152,7 +152,6 @@ export default function StudentsPage() {
             ...newStudentData,
             matricule: formattedId,
             numericId: nextId,
-            year: currentYear,
             registrationDate: new Date().toISOString().split('T')[0]
         });
         
@@ -167,7 +166,7 @@ export default function StudentsPage() {
         console.error("Erreur lors de l'ajout de l'élève: ", error);
         toast({
             title: 'Erreur',
-            description: "Impossible d'ajouter l'élève.",
+            description: "Impossible d'ajouter l'élève. Vérifiez les permissions Firestore.",
             variant: 'destructive',
         });
     }
