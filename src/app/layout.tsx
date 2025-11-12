@@ -42,7 +42,7 @@ function SiteHeader() {
       <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20">
               <Link href="/" className="flex items-center" prefetch={false}>
-                  <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1759771147/IMG-20250924-WA0009_3_efzfrh.jpg" alt="Logo" width={48} height={48} />
+                  <Image src="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" alt="Logo" width={48} height={48} />
               </Link>
               <nav className="hidden lg:flex gap-8 items-center text-sm font-medium">
                   <Link href="/" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
@@ -167,6 +167,7 @@ export default function RootLayout({
       <head>
         <title>SchoolZenith Admin</title>
         <meta name="description" content="Panneau d'administration pour SchoolZenith" />
+        <link rel="icon" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
