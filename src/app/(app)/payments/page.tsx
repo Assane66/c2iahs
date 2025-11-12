@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MoreHorizontal, PlusCircle, ChevronsUpDown, Check, Search, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -121,7 +121,7 @@ export default function PaymentsPage() {
       setStudents(studentsList);
       const studentMap = new Map(studentsList.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
 
-      const paymentsSnapshot = await getDocs(query(collection(db, 'payments'), orderBy('paymentDate', 'desc')));
+      const paymentsSnapshot = await getDocs(collection(db, 'payments'));
       const paymentsList = paymentsSnapshot.docs.map(doc => {
         const data = doc.data() as Payment;
         return {
@@ -376,4 +376,3 @@ export default function PaymentsPage() {
   );
 }
 
-    
