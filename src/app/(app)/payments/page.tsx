@@ -98,8 +98,7 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const years = Array.from({ length: 6 }, (_, i) => 2025 + i);
   const months = [
     { value: '01', label: 'Janvier' }, { value: '02', label: 'Février' },
     { value: '03', label: 'Mars' }, { value: '04', label: 'Avril' },
@@ -122,7 +121,7 @@ export default function PaymentsPage() {
 
       const paymentsSnapshot = await getDocs(query(collection(db, 'payments')));
       const paymentsList = paymentsSnapshot.docs.map(doc => {
-        const data = doc.data() as Payment;
+        const data = doc.data() as Omit<Payment, 'id'>;
         return {
           id: doc.id,
           ...data,
@@ -145,7 +144,7 @@ export default function PaymentsPage() {
 
   useEffect(() => {
     fetchPaymentsAndStudents();
-  }, []);
+  }, [toast]);
 
   const handleAddPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -269,7 +268,7 @@ export default function PaymentsPage() {
                             <SelectTrigger><SelectValue placeholder="Mois" /></SelectTrigger>
                             <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
                         </Select>
-                        <Select name="year" required defaultValue={currentYear.toString()}>
+                        <Select name="year" required defaultValue={new Date().getFullYear().toString()}>
                             <SelectTrigger><SelectValue placeholder="Année" /></SelectTrigger>
                             <SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
                         </Select>

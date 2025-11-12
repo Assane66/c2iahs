@@ -31,6 +31,7 @@ type Student = {
   lastName: string;
   classId: string;
   parentPhone?: string;
+  numericId?: number;
 };
 
 type Payment = {
@@ -56,7 +57,7 @@ export default function UnpaidStudentsPage() {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const { toast } = useToast();
 
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const years = Array.from({ length: 6 }, (_, i) => 2025 + i);
   const months = [
     { value: '01', label: 'Janvier' }, { value: '02', label: 'Février' },
     { value: '03', label: 'Mars' }, { value: '04', label: 'Avril' },
