@@ -36,6 +36,7 @@ type Student = {
 type Payment = {
   studentId: string;
   month: string; // YYYY-MM
+  status: 'Payé' | 'En attente';
 };
 
 type Class = {
@@ -89,7 +90,7 @@ export default function UnpaidStudentsPage() {
       
       const unpaid = allStudents.filter(student => !paidStudentIds.has(student.id));
       
-      unpaid.sort((a, b) => (a.matricule || '').localeCompare(b.matricule || ''));
+      unpaid.sort((a, b) => (a.numericId || 0) - (b.numericId || 0));
       setUnpaidStudents(unpaid);
 
     } catch (error) {
@@ -116,7 +117,7 @@ export default function UnpaidStudentsPage() {
       const studentName = `${student.firstName} ${student.lastName}`.toLowerCase();
       const className = getClassName(student.classId).toLowerCase();
       const search = searchQuery.toLowerCase();
-      return studentName.includes(search) || className.includes(search);
+      return studentName.includes(search) || className.includes(search) || student.matricule.toLowerCase().includes(search);
   });
 
   return (
