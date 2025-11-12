@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +28,7 @@ export function UserNav() {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Admin Director</p>
             <p className="text-xs leading-none text-muted-foreground">
-              admin@schoolzenith.com
+              c2iahs@gmail.com
             </p>
           </div>
         </DropdownMenuLabel>

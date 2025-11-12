@@ -54,7 +54,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold">Email</h3>
-                  <p className="text-muted-foreground">admin@schoolzenith.com</p>
+                  <p className="text-muted-foreground">c2iahs@gmail.com</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
