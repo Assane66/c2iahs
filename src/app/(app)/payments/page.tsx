@@ -71,7 +71,6 @@ type Payment = {
   id: string;
   studentId: string;
   amount: number;
-  reason: string;
   paymentDate: string;
   status: 'Payé' | 'En attente';
   month: string; // YYYY-MM
@@ -121,7 +120,7 @@ export default function PaymentsPage() {
       setStudents(studentsList);
       const studentMap = new Map(studentsList.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
 
-      const paymentsSnapshot = await getDocs(collection(db, 'payments'));
+      const paymentsSnapshot = await getDocs(query(collection(db, 'payments')));
       const paymentsList = paymentsSnapshot.docs.map(doc => {
         const data = doc.data() as Payment;
         return {
@@ -166,7 +165,6 @@ export default function PaymentsPage() {
     const newPaymentData: Omit<Payment, 'id'> = {
       studentId: selectedStudentId,
       amount: parseFloat((form.elements.namedItem('amount') as HTMLInputElement)?.value),
-      reason: (form.elements.namedItem('reason') as HTMLInputElement)?.value,
       paymentDate: (form.elements.namedItem('date') as HTMLInputElement)?.value,
       status: (form.elements.namedItem('status') as HTMLInputElement)?.value as Payment['status'],
       month: `${year}-${month}`,
@@ -223,8 +221,7 @@ export default function PaymentsPage() {
   };
   
   const filteredPayments = payments.filter(payment =>
-    payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    payment.reason.toLowerCase().includes(searchQuery.toLowerCase())
+    payment.studentName.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
   const selectedStudent = students.find(s => s.id === selectedStudentId);
@@ -283,10 +280,6 @@ export default function PaymentsPage() {
                   <Input id="amount" name="amount" type="number" placeholder="ex: 5000" className="col-span-3" required />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="reason" className="text-right">Motif</Label>
-                  <Input id="reason" name="reason" placeholder="ex: Scolarité" className="col-span-3" required />
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="status" className="text-right">Statut</Label>
                    <Select name="status" required>
                     <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner un statut" /></SelectTrigger>
@@ -313,7 +306,7 @@ export default function PaymentsPage() {
             </div>
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher par nom, motif..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <Input type="search" placeholder="Rechercher par nom..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
@@ -322,7 +315,6 @@ export default function PaymentsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nom de l'Élève</TableHead>
-                <TableHead>Motif</TableHead>
                 <TableHead>Mois Payé</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Montant</TableHead>
@@ -331,12 +323,11 @@ export default function PaymentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? ( <TableRow><TableCell colSpan={7} className="h-24 text-center">Chargement...</TableCell></TableRow>
+              {loading ? ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Chargement...</TableCell></TableRow>
               ) : filteredPayments.length > 0 ? (
                 filteredPayments.map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell className="font-medium">{payment.studentName}</TableCell>
-                    <TableCell>{payment.reason}</TableCell>
                     <TableCell>{payment.month}</TableCell>
                     <TableCell><Badge variant={getStatusBadgeVariant(payment.status)} className={getStatusBadgeClass(payment.status)}>{payment.status}</Badge></TableCell>
                     <TableCell>{new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA</TableCell>
@@ -367,7 +358,7 @@ export default function PaymentsPage() {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : ( <TableRow><TableCell colSpan={7} className="h-24 text-center">Aucun paiement trouvé.</TableCell></TableRow> )}
+              ) : ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Aucun paiement trouvé.</TableCell></TableRow> )}
             </TableBody>
           </Table>
         </CardContent>
@@ -375,4 +366,3 @@ export default function PaymentsPage() {
     </div>
   );
 }
-

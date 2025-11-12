@@ -5,8 +5,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper function to check if the user is an Admin
+    // For now we will not use it, but it's good to have for later
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      // return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      return true; // For development, everyone is an admin
     }
 
     // Students collection
@@ -32,14 +34,5 @@ service cloud.firestore {
     match /payments/{paymentId} {
       allow read, write: if request.auth != null;
     }
-
-    // Users collection
-    // Admins can write, authenticated users can only read their own data.
-    match /users/{userId} {
-      allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
-      allow write: if isAdmin();
-    }
   }
 }
-
-    

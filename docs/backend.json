@@ -105,10 +105,6 @@
           "type": "number",
           "description": "The amount paid"
         },
-        "reason": {
-          "type": "string",
-          "description": "Reason for the payment (e.g., scolarité, uniforme)"
-        },
         "paymentDate": {
           "type": "string",
           "format": "date",
@@ -124,26 +120,7 @@
           "description": "Month the payment is for (YYYY-MM)"
         }
       },
-      "required": ["studentId", "amount", "reason", "paymentDate", "status", "month"]
-    },
-    "user": {
-      "title": "User",
-      "description": "A user of the admin panel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "role": {
-          "type": "string",
-          "enum": ["Admin", "Professeur", "Comptable", "Élève"]
-        }
-      },
-      "required": ["name", "email", "role"]
+      "required": ["studentId", "amount", "paymentDate", "status", "month"]
     }
   },
   "auth": {
@@ -173,14 +150,6 @@
         "$ref": "#/entities/payment"
       },
       "description": "Stores payment history."
-    },
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/user"
-      },
-      "description": "Stores user accounts for the admin panel."
     }
   }
 }
-
-    

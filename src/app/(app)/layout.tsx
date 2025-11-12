@@ -9,7 +9,6 @@ import {
   CreditCard,
   LayoutDashboard,
   Users,
-  UserCog,
   School,
   UserX,
 } from 'lucide-react';
@@ -100,17 +99,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   >
                     <UserX />
                     Non Payé
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link href="/users" passHref>
-                  <SidebarMenuButton
-                    isActive={isActive('/users')}
-                    tooltip="Utilisateurs"
-                  >
-                    <UserCog />
-                    Utilisateurs
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
