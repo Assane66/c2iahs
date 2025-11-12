@@ -17,10 +17,10 @@ service cloud.firestore {
     }
 
     // Classes collection
-    // Admins can do anything. Authenticated users can read.
+    // Any authenticated user can read and write for now.
+    // We will restrict this to Admins later.
     match /classes/{classId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
     
     // Teachers collection
