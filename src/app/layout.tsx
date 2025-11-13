@@ -171,7 +171,12 @@ export default function RootLayout({
         <meta property="og:description" content="Découvrez notre vision, nos programmes et rejoignez-nous à Tivaouane Peulh." />
         <meta property="og:url" content="https://c2iahs.com/" />
         <meta property="og:image" content="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" />
-        <link rel="icon" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" sizes="any" />
+        
+        <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1763042585/apple-touch-icon_njjl3z.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1763042648/favicon-32x32_decci4.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1763042637/favicon-16x16_hvgfxd.png" />
+        <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/dm6yuokre/image/upload/v1763042599/favicon_f4hcvq.ico" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
