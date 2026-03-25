@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -36,14 +35,9 @@ type Student = {
 
 type Payment = {
   studentId: string;
-  month: string; // YYYY-MM
+  month: string;
   status: 'Payé' | 'En attente';
 };
-
-type Class = {
-  id: string;
-  name: string;
-}
 
 const currentYear = new Date().getFullYear();
 const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
@@ -57,7 +51,7 @@ export default function UnpaidStudentsPage() {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const { toast } = useToast();
 
-  const years = Array.from({ length: 6 }, (_, i) => 2025 + i);
+  const years = ['2025', '2026', '2027', '2028', '2029', '2030'];
   const months = [
     { value: '01', label: 'Janvier' }, { value: '02', label: 'Février' },
     { value: '03', label: 'Mars' }, { value: '04', label: 'Avril' },
@@ -82,23 +76,29 @@ export default function UnpaidStudentsPage() {
         ...doc.data(),
       })) as Student[];
 
-      const paymentsQuery = query(collection(db, 'payments'), where('month', '==', targetMonth), where('status', '==', 'Payé'));
+      // Récupérer tous les paiements du mois sélectionné avec le statut "Payé"
+      const paymentsQuery = query(
+        collection(db, 'payments'), 
+        where('month', '==', targetMonth),
+        where('status', '==', 'Payé')
+      );
       const paymentsSnapshot = await getDocs(paymentsQuery);
       
       const paidStudentIds = new Set(
         paymentsSnapshot.docs.map(doc => (doc.data() as Payment).studentId)
       );
       
+      // Un étudiant est impayé s'il n'existe AUCUN paiement marqué comme "Payé" pour ce mois
       const unpaid = allStudents.filter(student => !paidStudentIds.has(student.id));
       
       unpaid.sort((a, b) => (a.numericId || 0) - (b.numericId || 0));
       setUnpaidStudents(unpaid);
 
     } catch (error) {
-      console.error("Erreur lors de la récupération des données: ", error);
+      console.error("Erreur: ", error);
       toast({
         title: 'Erreur',
-        description: "Impossible de charger la liste des élèves impayés.",
+        description: "Impossible de charger la liste.",
         variant: 'destructive',
       });
     } finally {
@@ -111,7 +111,6 @@ export default function UnpaidStudentsPage() {
   }, [fetchUnpaidStudents]);
   
   const selectedMonthLabel = months.find(m => m.value === selectedMonth)?.label || '';
-  
   const getClassName = (classId: string) => classes.get(classId) || 'N/A';
 
   const filteredUnpaidStudents = unpaidStudents.filter(student => {
@@ -124,61 +123,61 @@ export default function UnpaidStudentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Impayés du Mois</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-800">Impayés du Mois</h1>
+        <p className="text-muted-foreground text-sm">
           Liste des élèves n'ayant pas payé pour {selectedMonthLabel} {selectedYear}.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-sm border-gray-100">
+        <CardHeader className="pb-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <CardTitle>Élèves sans Paiement</CardTitle>
-              <CardDescription>
-                {filteredUnpaidStudents.length} élèves sans paiement pour {selectedMonthLabel} {selectedYear}.
+              <CardTitle className="text-lg">Élèves sans paiement</CardTitle>
+              <CardDescription className="text-xs">
+                {filteredUnpaidStudents.length} élèves identifiés.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[180px]"><SelectValue placeholder="Mois" /></SelectTrigger>
-                    <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
+                    <SelectTrigger className="w-[140px] h-9 text-xs"><SelectValue placeholder="Mois" /></SelectTrigger>
+                    <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value} className="text-xs">{m.label}</SelectItem>)}</SelectContent>
                 </Select>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-[120px]"><SelectValue placeholder="Année" /></SelectTrigger>
-                    <SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                    <SelectTrigger className="w-[100px] h-9 text-xs"><SelectValue placeholder="Année" /></SelectTrigger>
+                    <SelectContent>{years.map(y => <SelectItem key={y} value={y} className="text-xs">{y}</SelectItem>)}</SelectContent>
                 </Select>
             </div>
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full max-w-xs">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher par nom, classe..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <Input type="search" placeholder="Rechercher..." className="pl-8 h-9 text-xs" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Matricule</TableHead>
-                <TableHead>Nom Complet</TableHead>
-                <TableHead>Classe</TableHead>
-                <TableHead>Contact Parent</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-xs">Matricule</TableHead>
+                <TableHead className="text-xs">Nom Complet</TableHead>
+                <TableHead className="text-xs">Classe</TableHead>
+                <TableHead className="text-xs">Contact Parent</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="h-24 text-center">Chargement...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="h-24 text-center text-xs">Chargement...</TableCell></TableRow>
               ) : filteredUnpaidStudents.length > 0 ? (
                 filteredUnpaidStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell>{student.matricule}</TableCell>
-                    <TableCell className="font-medium">{`${student.firstName} ${student.lastName}`}</TableCell>
-                    <TableCell>{getClassName(student.classId)}</TableCell>
-                    <TableCell>{student.parentPhone || 'N/A'}</TableCell>
+                  <TableRow key={student.id} className="hover:bg-gray-50/50">
+                    <TableCell className="text-xs text-gray-600">{student.matricule}</TableCell>
+                    <TableCell className="font-medium text-xs text-gray-800">{`${student.firstName} ${student.lastName}`}</TableCell>
+                    <TableCell className="text-xs text-gray-600">{getClassName(student.classId)}</TableCell>
+                    <TableCell className="text-xs text-gray-500">{student.parentPhone || 'N/A'}</TableCell>
                   </TableRow>
                 ))
               ) : (
-                <TableRow><TableCell colSpan={4} className="h-24 text-center">Aucun impayé trouvé pour la période sélectionnée.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="h-24 text-center text-xs text-muted-foreground">Tout est à jour pour cette période.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

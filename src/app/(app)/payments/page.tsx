@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle, ChevronsUpDown, Check, Search, Trash2 } from 'lucide-react';
+import { PlusCircle, ChevronsUpDown, Check, Search, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,7 +82,6 @@ type Student = {
   lastName: string;
 };
 
-// Extend Payment type for display purposes
 type DisplayPayment = Payment & {
   studentName: string;
 };
@@ -98,7 +96,7 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   
-  const years = Array.from({ length: 6 }, (_, i) => 2025 + i);
+  const years = ['2025', '2026', '2027', '2028', '2029', '2030'];
   const months = [
     { value: '01', label: 'Janvier' }, { value: '02', label: 'Février' },
     { value: '03', label: 'Mars' }, { value: '04', label: 'Avril' },
@@ -119,7 +117,7 @@ export default function PaymentsPage() {
       setStudents(studentsList);
       const studentMap = new Map(studentsList.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
 
-      const paymentsSnapshot = await getDocs(query(collection(db, 'payments')));
+      const paymentsSnapshot = await getDocs(collection(db, 'payments'));
       const paymentsList = paymentsSnapshot.docs.map(doc => {
         const data = doc.data() as Omit<Payment, 'id'>;
         return {
@@ -131,7 +129,7 @@ export default function PaymentsPage() {
       setPayments(paymentsList);
 
     } catch (error) {
-      console.error("Erreur lors de la récupération des données: ", error);
+      console.error("Erreur: ", error);
       toast({
         title: 'Erreur',
         description: "Impossible de charger les données.",
@@ -144,7 +142,7 @@ export default function PaymentsPage() {
 
   useEffect(() => {
     fetchPaymentsAndStudents();
-  }, [toast]);
+  }, []);
 
   const handleAddPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -175,12 +173,12 @@ export default function PaymentsPage() {
         title: 'Succès',
         description: 'Paiement ajouté avec succès !',
       });
-      fetchPaymentsAndStudents(); // Refresh list
+      fetchPaymentsAndStudents();
       setOpen(false);
       form.reset();
       setSelectedStudentId('');
     } catch (error) {
-      console.error("Erreur lors de l'ajout du paiement: ", error);
+      console.error("Erreur: ", error);
       toast({
         title: 'Erreur',
         description: "Impossible d'ajouter le paiement.",
@@ -198,7 +196,7 @@ export default function PaymentsPage() {
       });
       fetchPaymentsAndStudents();
     } catch (error) {
-      console.error("Erreur lors de la suppression du paiement: ", error);
+      console.error("Erreur: ", error);
       toast({
         title: 'Erreur',
         description: "Impossible de supprimer le paiement.",
@@ -208,14 +206,11 @@ export default function PaymentsPage() {
   };
 
   const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'Payé': return 'default';
-      case 'En attente': default: return 'secondary';
-    }
+    return status === 'Payé' ? 'default' : 'secondary';
   };
   
   const getStatusBadgeClass = (status: string) => {
-    if (status === 'Payé') return 'bg-green-600 hover:bg-green-700';
+    if (status === 'Payé') return 'bg-green-600 hover:bg-green-700 text-white';
     return '';
   };
   
@@ -229,135 +224,150 @@ export default function PaymentsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Paiements</h1>
-          <p className="text-muted-foreground">Suivez et gérez les paiements des élèves.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-800">Paiements</h1>
+          <p className="text-muted-foreground text-sm">Suivez et gérez les paiements des élèves.</p>
         </div>
         <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) { setSelectedStudentId(''); } }}>
-          <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Ajouter un Nouveau Paiement</DialogTitle></DialogHeader>
+          <DialogTrigger asChild><Button className="bg-primary hover:bg-primary/90"><PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Paiement</Button></DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader><DialogTitle>Nouveau Paiement</DialogTitle></DialogHeader>
             <form onSubmit={handleAddPayment}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="studentId" className="text-right">Élève</Label>
+                  <Label className="text-right text-xs">Élève</Label>
                    <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" aria-expanded={comboboxOpen} className="col-span-3 w-full justify-between">
+                      <Button variant="outline" role="combobox" className="col-span-3 w-full justify-between text-left font-normal h-9 text-xs">
                         {selectedStudent ? `${selectedStudent.firstName} ${selectedStudent.lastName}` : "Sélectionner un élève..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[300px] p-0">
-                      <Command><CommandInput placeholder="Rechercher un élève..." /><CommandEmpty>Aucun élève trouvé.</CommandEmpty>
-                        <CommandList><CommandGroup>
+                      <Command>
+                        <CommandInput placeholder="Rechercher un élève..." className="text-xs" />
+                        <CommandEmpty>Aucun élève trouvé.</CommandEmpty>
+                        <CommandList>
+                          <CommandGroup>
                             {students.map((student) => (
-                              <CommandItem key={student.id} value={`${student.firstName} ${student.lastName}`} onSelect={() => { setSelectedStudentId(student.id); setComboboxOpen(false);}}>
-                                <Check className={cn("mr-2 h-4 w-4", selectedStudentId === student.id ? "opacity-100" : "opacity-0")}/>
-                                <div className="flex flex-col"><span>{`${student.firstName} ${student.lastName}`}</span><span className="text-xs text-muted-foreground">{student.matricule}</span></div>
+                              <CommandItem 
+                                key={student.id} 
+                                value={`${student.firstName} ${student.lastName}`} 
+                                onSelect={() => { setSelectedStudentId(student.id); setComboboxOpen(false); }}
+                                className="text-xs"
+                              >
+                                <Check className={cn("mr-2 h-3 w-3", selectedStudentId === student.id ? "opacity-100" : "opacity-0")}/>
+                                <div className="flex flex-col">
+                                  <span>{`${student.firstName} ${student.lastName}`}</span>
+                                  <span className="text-[10px] text-muted-foreground">{student.matricule}</span>
+                                </div>
                               </CommandItem>
                             ))}
-                        </CommandGroup></CommandList>
+                          </CommandGroup>
+                        </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Mois de Paiement</Label>
+                    <Label className="text-right text-xs">Mois / Année</Label>
                     <div className="col-span-3 grid grid-cols-2 gap-2">
                         <Select name="month" required defaultValue={(new Date().getMonth() + 1).toString().padStart(2, '0')}>
-                            <SelectTrigger><SelectValue placeholder="Mois" /></SelectTrigger>
-                            <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
+                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Mois" /></SelectTrigger>
+                            <SelectContent>{months.map(m => <SelectItem key={m.value} value={m.value} className="text-xs">{m.label}</SelectItem>)}</SelectContent>
                         </Select>
                         <Select name="year" required defaultValue={new Date().getFullYear().toString()}>
-                            <SelectTrigger><SelectValue placeholder="Année" /></SelectTrigger>
-                            <SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Année" /></SelectTrigger>
+                            <SelectContent>{years.map(y => <SelectItem key={y} value={y} className="text-xs">{y}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">Montant</Label>
-                  <Input id="amount" name="amount" type="number" placeholder="ex: 5000" className="col-span-3" required />
+                  <Label htmlFor="amount" className="text-right text-xs">Montant</Label>
+                  <Input id="amount" name="amount" type="number" placeholder="5000" className="col-span-3 h-9 text-xs" required />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">Statut</Label>
-                   <Select name="status" required>
-                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner un statut" /></SelectTrigger>
-                    <SelectContent><SelectItem value="Payé">Payé</SelectItem><SelectItem value="En attente">En attente</SelectItem></SelectContent>
+                  <Label htmlFor="status" className="text-right text-xs">Statut</Label>
+                   <Select name="status" required defaultValue="Payé">
+                    <SelectTrigger className="col-span-3 h-9 text-xs"><SelectValue placeholder="Statut" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Payé" className="text-xs">Payé</SelectItem>
+                      <SelectItem value="En attente" className="text-xs">En attente</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="date" className="text-right">Date</Label>
-                  <Input id="date" name="date" type="date" className="col-span-3" defaultValue={new Date().toISOString().split('T')[0]} required />
+                  <Label htmlFor="date" className="text-right text-xs">Date</Label>
+                  <Input id="date" name="date" type="date" className="col-span-3 h-9 text-xs" defaultValue={new Date().toISOString().split('T')[0]} required />
                 </div>
               </div>
-              <DialogFooter><DialogClose asChild><Button type="button" variant="secondary">Annuler</Button></DialogClose><Button type="submit">Ajouter</Button></DialogFooter>
+              <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="ghost" className="text-xs">Annuler</Button></DialogClose>
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-xs">Ajouter</Button>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-sm border-gray-100">
+        <CardHeader className="pb-4">
            <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle>Historique des Paiements</CardTitle>
-              <CardDescription>Un enregistrement de tous les paiements ({filteredPayments.length}).</CardDescription>
+              <CardTitle className="text-lg">Historique</CardTitle>
+              <CardDescription className="text-xs">Total: {filteredPayments.length} paiements.</CardDescription>
             </div>
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full max-w-xs">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher par nom..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <Input type="search" placeholder="Rechercher un élève..." className="pl-8 h-9 text-xs" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Nom de l'Élève</TableHead>
-                <TableHead>Mois Payé</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Montant</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-xs">Élève</TableHead>
+                <TableHead className="text-xs">Mois</TableHead>
+                <TableHead className="text-xs">Statut</TableHead>
+                <TableHead className="text-xs">Montant</TableHead>
+                <TableHead className="text-xs">Date</TableHead>
+                <TableHead className="text-right text-xs">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Chargement...</TableCell></TableRow>
+              {loading ? ( <TableRow><TableCell colSpan={6} className="h-24 text-center text-xs">Chargement...</TableCell></TableRow>
               ) : filteredPayments.length > 0 ? (
                 filteredPayments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell className="font-medium">{payment.studentName}</TableCell>
-                    <TableCell>{payment.month}</TableCell>
-                    <TableCell><Badge variant={getStatusBadgeVariant(payment.status)} className={getStatusBadgeClass(payment.status)}>{payment.status}</Badge></TableCell>
-                    <TableCell>{new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA</TableCell>
-                    <TableCell>{new Date(payment.paymentDate).toLocaleDateString('fr-FR')}</TableCell>
+                  <TableRow key={payment.id} className="hover:bg-gray-50/50">
+                    <TableCell className="font-medium text-xs text-gray-800">{payment.studentName}</TableCell>
+                    <TableCell className="text-xs text-gray-600">{payment.month}</TableCell>
+                    <TableCell><Badge variant={getStatusBadgeVariant(payment.status)} className={cn("text-[10px] px-2 py-0 h-5", getStatusBadgeClass(payment.status))}>{payment.status}</Badge></TableCell>
+                    <TableCell className="text-xs font-semibold text-gray-700">{new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA</TableCell>
+                    <TableCell className="text-xs text-gray-500">{new Date(payment.paymentDate).toLocaleDateString('fr-FR')}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                           <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Supprimer</span>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10">
+                                  <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="bg-card">
                               <AlertDialogHeader>
-                                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      Cette action est irréversible. Le paiement de <strong>{payment.studentName}</strong> d'un montant de <strong>{new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA</strong> sera définitivement supprimé.
+                                  <AlertDialogTitle className="text-gray-800">Supprimer le paiement ?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-xs text-gray-500">
+                                      Le paiement de <strong>{payment.studentName}</strong> ({new Intl.NumberFormat('fr-FR').format(Number(payment.amount))} FCFA) sera définitivement retiré.
                                   </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeletePayment(payment.id)}>
-                                      Supprimer
-                                  </AlertDialogAction>
+                                  <AlertDialogCancel className="text-xs">Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeletePayment(payment.id)} className="bg-destructive hover:bg-destructive/90 text-xs">Supprimer</AlertDialogAction>
                               </AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))
-              ) : ( <TableRow><TableCell colSpan={6} className="h-24 text-center">Aucun paiement trouvé.</TableCell></TableRow> )}
+              ) : ( <TableRow><TableCell colSpan={6} className="h-24 text-center text-xs text-muted-foreground">Aucun paiement trouvé.</TableCell></TableRow> )}
             </TableBody>
           </Table>
         </CardContent>

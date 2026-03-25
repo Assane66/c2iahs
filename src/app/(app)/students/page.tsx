@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -47,7 +46,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Student = {
-  id: string; // Firestore document ID
+  id: string;
   matricule: string;
   numericId: number;
   firstName: string;
@@ -77,7 +76,6 @@ export default function StudentsPage() {
   const fetchStudentsAndClasses = async () => {
     setLoading(true);
     try {
-      // Fetch classes
       const classesSnapshot = await getDocs(collection(db, 'classes'));
       const classesList = classesSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -85,7 +83,6 @@ export default function StudentsPage() {
       })) as Class[];
       setClasses(classesList);
 
-      // Fetch students
       const studentsSnapshot = await getDocs(query(collection(db, 'students'), orderBy('numericId', 'asc')));
       const studentsList = studentsSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -93,10 +90,10 @@ export default function StudentsPage() {
       })) as Student[];
       setStudents(studentsList);
     } catch (error) {
-      console.error("Erreur lors de la récupération des données: ", error);
+      console.error("Erreur: ", error);
       toast({
         title: 'Erreur',
-        description: "Impossible de charger la liste des élèves ou des classes.",
+        description: "Impossible de charger les données.",
         variant: 'destructive',
       });
     } finally {
@@ -130,20 +127,13 @@ export default function StudentsPage() {
     try {
         const currentYear = new Date().getFullYear();
         const yearPrefix = `ELV${currentYear}`;
-
-        const q = query(
-          collection(db, 'students'),
-          orderBy('numericId', 'desc'), 
-          limit(1)
-        );
+        const q = query(collection(db, 'students'), orderBy('numericId', 'desc'), limit(1));
         const querySnapshot = await getDocs(q);
 
         let nextId = 1;
         if (!querySnapshot.empty) {
             const lastStudent = querySnapshot.docs[0].data();
-            if(lastStudent.matricule.startsWith(yearPrefix)) {
-                nextId = (lastStudent.numericId || 0) + 1;
-            }
+            nextId = (lastStudent.numericId || 0) + 1;
         }
         
         const formattedId = `${yearPrefix}-${String(nextId).padStart(3, '0')}`;
@@ -155,36 +145,39 @@ export default function StudentsPage() {
             registrationDate: new Date().toISOString().split('T')[0]
         });
         
-        toast({
-            title: 'Succès',
-            description: `Élève ajouté avec le matricule ${formattedId} !`,
-        });
-        fetchStudentsAndClasses(); // Refresh list
+        toast({ title: 'Succès', description: `Élève ajouté: ${formattedId}` });
+        fetchStudentsAndClasses();
         setOpen(false);
         form.reset();
     } catch (error) {
-        console.error("Erreur lors de l'ajout de l'élève: ", error);
-        toast({
-            title: 'Erreur',
-            description: "Impossible d'ajouter l'élève. Vérifiez les permissions Firestore.",
-            variant: 'destructive',
-        });
+        console.error("Erreur: ", error);
+        toast({ title: 'Erreur', description: "Action impossible.", variant: 'destructive' });
     }
   };
 
-  const handleDeleteStudent = async (id: string) => {
+  const handleDeleteStudent = async (studentId: string) => {
     try {
-      await deleteDoc(doc(db, 'students', id));
+      // 1. Suppression en cascade : Supprimer d'abord tous les paiements liés à cet élève
+      const paymentsRef = collection(db, 'payments');
+      const q = query(paymentsRef, where('studentId', '==', studentId));
+      const paymentsSnapshot = await getDocs(q);
+      
+      const deletePromises = paymentsSnapshot.docs.map(paymentDoc => deleteDoc(paymentDoc.ref));
+      await Promise.all(deletePromises);
+
+      // 2. Supprimer l'élève lui-même
+      await deleteDoc(doc(db, 'students', studentId));
+
       toast({
         title: 'Succès',
-        description: 'Élève supprimé avec succès !',
+        description: 'Élève et ses paiements supprimés avec succès !',
       });
-      fetchStudentsAndClasses(); // Refresh list
+      fetchStudentsAndClasses();
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'élève: ", error);
+      console.error("Erreur suppression: ", error);
       toast({
         title: 'Erreur',
-        description: "Impossible de supprimer l'élève.",
+        description: "Impossible de supprimer le dossier.",
         variant: 'destructive',
       });
     }
@@ -203,148 +196,119 @@ export default function StudentsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Élèves</h1>
-          <p className="text-muted-foreground">
-            Gérez votre liste d'élèves.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-800">Élèves</h1>
+          <p className="text-muted-foreground text-sm">Gérez la liste complète des inscrits.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Élève
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Ajouter un Nouvel Élève</DialogTitle>
-            </DialogHeader>
+          <DialogTrigger asChild><Button className="bg-primary hover:bg-primary/90"><PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Élève</Button></DialogTrigger>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
+            <DialogHeader><DialogTitle>Nouveau Dossier Élève</DialogTitle></DialogHeader>
             <form onSubmit={handleAddStudent}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="firstName" className="text-right">Prénom</Label>
-                  <Input id="firstName" name="firstName" className="col-span-3" required />
+                  <Label className="text-right text-xs">Prénom</Label>
+                  <Input name="firstName" className="col-span-3 h-9 text-xs" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="lastName" className="text-right">Nom</Label>
-                  <Input id="lastName" name="lastName" className="col-span-3" required />
+                  <Label className="text-right text-xs">Nom</Label>
+                  <Input name="lastName" className="col-span-3 h-9 text-xs" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="dob" className="text-right">Date de Naissance</Label>
-                  <Input id="dob" name="dob" type="date" className="col-span-3" required />
+                  <Label className="text-right text-xs">Naissance</Label>
+                  <Input name="dob" type="date" className="col-span-3 h-9 text-xs" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="pob" className="text-right">Lieu de Naissance</Label>
-                  <Input id="pob" name="pob" className="col-span-3" required />
+                  <Label className="text-right text-xs">Lieu Naiss.</Label>
+                  <Input name="pob" className="col-span-3 h-9 text-xs" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="classId" className="text-right">Classe</Label>
+                    <Label className="text-right text-xs">Classe</Label>
                     <Select name="classId" required>
-                        <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner une classe" /></SelectTrigger>
-                        <SelectContent>
-                            {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                        </SelectContent>
+                        <SelectTrigger className="col-span-3 h-9 text-xs"><SelectValue placeholder="Choisir..." /></SelectTrigger>
+                        <SelectContent>{classes.map(c => <SelectItem key={c.id} value={c.id} className="text-xs">{c.name}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="sex" className="text-right">Sexe</Label>
+                  <Label className="text-right text-xs">Sexe</Label>
                   <Select name="sex" required>
-                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner le sexe" /></SelectTrigger>
+                    <SelectTrigger className="col-span-3 h-9 text-xs"><SelectValue placeholder="Sexe" /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Masculin">Masculin</SelectItem>
-                        <SelectItem value="Féminin">Féminin</SelectItem>
+                        <SelectItem value="Masculin" className="text-xs">Masculin</SelectItem>
+                        <SelectItem value="Féminin" className="text-xs">Féminin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="address" className="text-right">Adresse</Label>
-                  <Input id="address" name="address" className="col-span-3" />
+                  <Label className="text-right text-xs">Adresse</Label>
+                  <Input name="address" className="col-span-3 h-9 text-xs" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="parentPhone" className="text-right">Tél. Parent</Label>
-                  <Input id="parentPhone" name="parentPhone" className="col-span-3" />
+                  <Label className="text-right text-xs">Tél. Parent</Label>
+                  <Input name="parentPhone" className="col-span-3 h-9 text-xs" />
                 </div>
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">Annuler</Button>
-                </DialogClose>
-                <Button type="submit">Ajouter l'Élève</Button>
+                <DialogClose asChild><Button type="button" variant="ghost" className="text-xs">Annuler</Button></DialogClose>
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-xs">Enregistrer</Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-sm border-gray-100">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle>Liste des Élèves</CardTitle>
-              <CardDescription>
-                Une liste de tous les élèves de l'école. Total: {filteredStudents.length}
-              </CardDescription>
+              <CardTitle className="text-lg">Liste</CardTitle>
+              <CardDescription className="text-xs">Total: {filteredStudents.length} élèves.</CardDescription>
             </div>
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full max-w-xs">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Rechercher par nom, matricule..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <Input type="search" placeholder="Rechercher..." className="pl-8 h-9 text-xs" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Matricule</TableHead>
-                <TableHead>Nom Complet</TableHead>
-                <TableHead>Classe</TableHead>
-                <TableHead>Date de Naissance</TableHead>
-                <TableHead>Sexe</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-xs">Matricule</TableHead>
+                <TableHead className="text-xs">Nom</TableHead>
+                <TableHead className="text-xs">Classe</TableHead>
+                <TableHead className="text-xs">Naissance</TableHead>
+                <TableHead className="text-xs">Sexe</TableHead>
+                <TableHead className="text-right text-xs">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Chargement...
-                  </TableCell>
-                </TableRow>
+                <TableRow><TableCell colSpan={6} className="h-24 text-center text-xs">Chargement...</TableCell></TableRow>
               ) : filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell>{student.matricule}</TableCell>
-                    <TableCell className="font-medium">{`${student.firstName} ${student.lastName}`}</TableCell>
-                    <TableCell>{getClassName(student.classId)}</TableCell>
-                    <TableCell>{student.dob}</TableCell>
-                    <TableCell>{student.sex}</TableCell>
+                  <TableRow key={student.id} className="hover:bg-gray-50/50">
+                    <TableCell className="text-xs text-gray-600 font-mono">{student.matricule}</TableCell>
+                    <TableCell className="font-medium text-xs text-gray-800">{`${student.firstName} ${student.lastName}`}</TableCell>
+                    <TableCell className="text-xs text-gray-600">{getClassName(student.classId)}</TableCell>
+                    <TableCell className="text-xs text-gray-500">{student.dob}</TableCell>
+                    <TableCell className="text-xs text-gray-500">{student.sex}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                           <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Supprimer</span>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10">
+                                  <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="bg-card">
                               <AlertDialogHeader>
-                                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      Cette action est irréversible. Le dossier de l'élève <strong>{student.firstName} {student.lastName}</strong> sera définitivement supprimé.
+                                  <AlertDialogTitle className="text-gray-800">Supprimer l'élève ?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-xs text-gray-500">
+                                      Attention : Cette action est irréversible. Le dossier de l'élève <strong>{student.firstName} {student.lastName}</strong> ainsi que <strong>tous ses paiements enregistrés</strong> seront définitivement supprimés.
                                   </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteStudent(student.id)}>
-                                      Supprimer
-                                  </AlertDialogAction>
+                                  <AlertDialogCancel className="text-xs">Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteStudent(student.id)} className="bg-destructive hover:bg-destructive/90 text-xs">Supprimer définitivement</AlertDialogAction>
                               </AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
@@ -352,11 +316,7 @@ export default function StudentsPage() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Aucun élève trouvé.
-                  </TableCell>
-                </TableRow>
+                <TableRow><TableCell colSpan={6} className="h-24 text-center text-xs text-muted-foreground">Aucun élève trouvé.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -365,5 +325,3 @@ export default function StudentsPage() {
     </div>
   );
 }
-
-    
