@@ -4,35 +4,67 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is an Admin
-    // For now we will not use it, but it's good to have for later
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Placeholder for role-based access control.
+    // Create a users collection with roles when ready.
     function isAdmin() {
-      // return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
-      return true; // For development, everyone is an admin
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['SuperAdmin', 'Directeur', 'Secrétaire', 'Comptable'];
     }
 
-    // Students collection
-    // Any authenticated user can read and write for now for easier development.
     match /students/{studentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
 
-    // Classes collection
-    // Any authenticated user can read and write for now for easier development.
     match /classes/{classId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Teachers collection
-    // Any authenticated user can read and write for now for easier development.
-    match /teachers/{teacherId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
 
-    // Payments collection
-    // Any authenticated user can read and write for now for easier development.
+    match /teachers/{teacherId} {
+      allow read, write: if isAuthenticated();
+    }
+
     match /payments/{paymentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
+    }
+
+    match /registrations/{registrationId} {
+      allow create: if
+        request.resource.data.keys().hasAll(['firstName', 'lastName', 'phone', 'requestedClass', 'status', 'createdAt', 'updatedAt']) &&
+        request.resource.data.firstName is string &&
+        request.resource.data.lastName is string &&
+        request.resource.data.phone is string &&
+        request.resource.data.requestedClass is string &&
+        request.resource.data.status == 'En attente' &&
+        (
+          request.resource.data.birthPlace is string ||
+          request.resource.data.birthPlace == null
+        ) &&
+        (
+          request.resource.data.birthDate is string ||
+          request.resource.data.birthDate == null
+        ) &&
+        (
+          request.resource.data.remarks is string ||
+          request.resource.data.remarks == null ||
+          !request.resource.data.keys().hasAny(['remarks'])
+        ) &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.updatedAt is timestamp;
+
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    match /users/{userId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Default deny for any other documents.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

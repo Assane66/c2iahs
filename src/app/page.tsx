@@ -11,6 +11,9 @@ import { motion } from 'framer-motion';
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -33,26 +36,62 @@ const itemVariants = {
 
 export default function LandingPage() {
     const [isFormOpen, setIsFormOpen] = React.useState(false);
+    const [submitting, setSubmitting] = React.useState(false);
+    const { toast } = useToast();
 
-    const handleRegistrationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleRegistrationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const form = e.currentTarget;
-      const prenom = (form.elements.namedItem('prenom') as HTMLInputElement).value;
-      const nom = (form.elements.namedItem('nom') as HTMLInputElement).value;
-      const telephone = (form.elements.namedItem('telephone') as HTMLInputElement).value;
-      const niveau = (form.elements.namedItem('niveau') as HTMLInputElement).value;
+      const prenom = (form.elements.namedItem('prenom') as HTMLInputElement).value.trim();
+      const nom = (form.elements.namedItem('nom') as HTMLInputElement).value.trim();
+      const telephone = (form.elements.namedItem('telephone') as HTMLInputElement).value.trim();
+      const niveau = (form.elements.namedItem('niveau') as HTMLInputElement).value.trim();
+      const lieuNaissance = (form.elements.namedItem('lieuNaissance') as HTMLInputElement).value.trim();
+      const dateNaissance = (form.elements.namedItem('dateNaissance') as HTMLInputElement).value;
 
-      const message = `
-        Nouvelle demande d'inscription:
-        Prénom: ${prenom}
-        Nom: ${nom}
-        Téléphone: ${telephone}
-        Niveau: ${niveau}
-      `;
+      if (!prenom || !nom || !telephone || !niveau) {
+        toast({
+          title: 'Champs requis',
+          description: 'Veuillez remplir tous les champs obligatoires.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-      const whatsappUrl = `https://wa.me/221781635209?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-      setIsFormOpen(false);
+      setSubmitting(true);
+      try {
+        await addDoc(collection(db, 'registrations'), {
+          firstName: prenom,
+          lastName: nom,
+          phone: telephone,
+          requestedClass: niveau,
+          birthPlace: lieuNaissance || null,
+          birthDate: dateNaissance || null,
+          status: 'En attente',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+
+        const message = `Nouvelle demande d'inscription:%0APrénom: ${prenom}%0ANom: ${nom}%0ATéléphone: ${telephone}%0AClasse demandée: ${niveau}%0A${lieuNaissance ? `Lieu de naissance: ${lieuNaissance}%0A` : ''}${dateNaissance ? `Date de naissance: ${dateNaissance}%0A` : ''}`;
+        const whatsappUrl = `https://wa.me/221781635209?text=${message}`;
+        window.open(whatsappUrl, '_blank');
+
+        toast({
+          title: 'Demande enregistrée',
+          description: 'Votre inscription a bien été sauvegardée. Vous êtes redirigé vers WhatsApp.',
+        });
+        setIsFormOpen(false);
+        form.reset();
+      } catch (error) {
+        console.error('Erreur enregistrement inscription:', error);
+        toast({
+          title: 'Erreur',
+          description: 'Impossible d’enregistrer la demande. Réessayez plus tard.',
+          variant: 'destructive',
+        });
+      } finally {
+        setSubmitting(false);
+      }
     };
 
   return (
@@ -195,15 +234,25 @@ export default function LandingPage() {
                 <Input id="telephone" name="telephone" type="tel" className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="niveau" className="text-right">Niveau</Label>
-                <Input id="niveau" name="niveau" placeholder="ex: CI, CM2..." className="col-span-3" required />
+                <Label htmlFor="niveau" className="text-right">Classe demandée</Label>
+                <Input id="niveau" name="niveau" placeholder="ex: CM2" className="col-span-3" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="lieuNaissance" className="text-right">Lieu de naissance</Label>
+                <Input id="lieuNaissance" name="lieuNaissance" className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="dateNaissance" className="text-right">Date de naissance</Label>
+                <Input id="dateNaissance" name="dateNaissance" type="date" className="col-span-3" />
               </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">Annuler</Button>
               </DialogClose>
-              <Button type="submit" className="bg-primary hover:bg-primary/90">Envoyer via WhatsApp</Button>
+              <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={submitting}>
+                {submitting ? 'Envoi...' : 'Envoyer via WhatsApp'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

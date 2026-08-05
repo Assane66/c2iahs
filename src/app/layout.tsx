@@ -48,7 +48,9 @@ function SiteHeader() {
                   <Link href="/" className="text-foreground hover:text-primary" prefetch={false}>Accueil</Link>
                   <Link href="/about" className="text-foreground hover:text-primary" prefetch={false}>À Propos</Link>
                   <Link href="/programs" className="text-foreground hover:text-primary" prefetch={false}>Programmes</Link>
-                  <Link href="/contact" className="text-foreground hover:text-primary" prefetch={false}>Contact</Link>
+                  <Link href="/announcements" className="text-foreground hover:text-primary" prefetch={false}>Annonces</Link>
+                  <Link href="/events" className="text-foreground hover:text-primary" prefetch={false}>Événements</Link>
+                  <Link href="/gallery" className="text-foreground hover:text-primary" prefetch={false}>Galerie</Link>
                   <Link href="/login" className="text-foreground hover:text-primary" prefetch={false}>Espace Admin</Link>
               </nav>
                <div className="hidden lg:flex items-center">
@@ -69,6 +71,9 @@ function SiteHeader() {
                           <Link href="/" onClick={() => setOpen(false)} className="hover:text-primary">Accueil</Link>
                           <Link href="/about" onClick={() => setOpen(false)} className="hover:text-primary">À Propos</Link>
                           <Link href="/programs" onClick={() => setOpen(false)} className="hover:text-primary">Programmes</Link>
+                          <Link href="/announcements" onClick={() => setOpen(false)} className="hover:text-primary">Annonces</Link>
+                          <Link href="/events" onClick={() => setOpen(false)} className="hover:text-primary">Événements</Link>
+                          <Link href="/gallery" onClick={() => setOpen(false)} className="hover:text-primary">Galerie</Link>
                           <Link href="/contact" onClick={() => setOpen(false)} className="hover:text-primary">Contact</Link>
                            <Button asChild className="bg-primary hover:bg-primary/90 mt-4">
                               <Link href="/login">Espace Admin</Link>

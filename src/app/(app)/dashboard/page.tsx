@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { DollarSign, Users, School, AlertCircle } from 'lucide-react';
+import { DollarSign, Users, School, AlertCircle, BookCopy } from 'lucide-react';
 
 const initialChartData = [
   { name: 'Jan', total: 0 },
@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [activeClasses, setActiveClasses] = useState(0);
+  const [pendingRegistrations, setPendingRegistrations] = useState(0);
   const [pendingPayments, setPendingPayments] = useState(0);
   const [chartData, setChartData] = useState(initialChartData);
   const [loading, setLoading] = useState(true);
@@ -71,8 +72,12 @@ export default function DashboardPage() {
           }
         });
 
+        const registrationsSnapshot = await getDocs(collection(db, 'registrations'));
+        const pendingRegistrationsCount = registrationsSnapshot.docs.filter((doc) => doc.data().status === 'En attente').length;
+
         setTotalRevenue(revenue);
         setPendingPayments(pendingCount);
+        setPendingRegistrations(pendingRegistrationsCount);
 
         const newChartData = initialChartData.map((monthData, index) => ({
             ...monthData,
@@ -142,6 +147,18 @@ export default function DashboardPage() {
              {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{activeClasses}</div>}
             <p className="text-xs text-muted-foreground">
               Total des classes créées
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Inscriptions en Attente</CardTitle>
+            <BookCopy className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? <div className="text-2xl font-bold">...</div> : <div className="text-2xl font-bold">{pendingRegistrations}</div>}
+            <p className="text-xs text-muted-foreground">
+              Demandes d'inscription à traiter
             </p>
           </CardContent>
         </Card>

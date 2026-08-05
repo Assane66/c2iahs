@@ -81,6 +81,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <Link href="/inscriptions" passHref>
+                  <SidebarMenuButton
+                    isActive={isActive('/inscriptions')}
+                    tooltip="Inscriptions"
+                  >
+                    <BookCopy />
+                    Inscriptions
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link href="/payments" passHref>
                   <SidebarMenuButton
                     isActive={isActive('/payments')}
