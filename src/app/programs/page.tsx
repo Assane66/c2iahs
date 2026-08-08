@@ -40,7 +40,7 @@ export default function ProgramsPage() {
             <CardHeader className="items-center">
               <Award className="h-12 w-12 text-primary mb-4" />
               <CardTitle>Système Français</CardTitle>
-              <CardDescription>De la maternelle au lycée, suivant le programme national.</CardDescription>
+              <CardDescription>De la maternelle au collège, suivant le programme national.</CardDescription>
             </CardHeader>
           </Card>
         </div>

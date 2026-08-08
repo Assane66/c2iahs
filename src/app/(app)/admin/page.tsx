@@ -40,7 +40,7 @@ export default function AdminHomePage() {
             <CardDescription>Ajoutez des formations et parcours pédagogiques.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground">Mettez à jour les programmes disponibles et les informations de chaque filière.</p>
+            <p className="text-sm text-muted-foreground">Mettez à jour les programmes disponibles et les informations de chaque niveau.</p>
             <Button asChild>
               <Link href="/admin/programs">Gérer les programmes</Link>
             </Button>

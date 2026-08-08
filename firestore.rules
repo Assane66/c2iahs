@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -8,63 +7,74 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Placeholder for role-based access control.
-    // Create a users collection with roles when ready.
-    function isAdmin() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['SuperAdmin', 'Directeur', 'Secrétaire', 'Comptable'];
+    // Public read collections for website display
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
+    match /academicYears/{yearId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /programs/{programId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /gallery/{imageId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Students & Scanner (read for detail, write for admin)
     match /students/{studentId} {
-      allow read, write: if isAuthenticated();
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
     match /classes/{classId} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /teachers/{teacherId} {
-      allow read, write: if isAuthenticated();
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
     match /payments/{paymentId} {
-      allow read, write: if isAuthenticated();
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
     match /registrations/{registrationId} {
-      allow create: if
-        request.resource.data.keys().hasAll(['firstName', 'lastName', 'phone', 'requestedClass', 'status', 'createdAt', 'updatedAt']) &&
-        request.resource.data.firstName is string &&
-        request.resource.data.lastName is string &&
-        request.resource.data.phone is string &&
-        request.resource.data.requestedClass is string &&
-        request.resource.data.status == 'En attente' &&
-        (
-          request.resource.data.birthPlace is string ||
-          request.resource.data.birthPlace == null
-        ) &&
-        (
-          request.resource.data.birthDate is string ||
-          request.resource.data.birthDate == null
-        ) &&
-        (
-          request.resource.data.remarks is string ||
-          request.resource.data.remarks == null ||
-          !request.resource.data.keys().hasAny(['remarks'])
-        ) &&
-        request.resource.data.createdAt is timestamp &&
-        request.resource.data.updatedAt is timestamp;
-
+      allow create: if true;
       allow read, update, delete: if isAuthenticated();
     }
 
-    match /users/{userId} {
-      allow read, write: if isAdmin();
+    match /notifications/{notificationId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
     }
 
-    // Default deny for any other documents.
+    match /activityLog/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /users/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Default catch-all rule
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isAuthenticated();
     }
   }
 }

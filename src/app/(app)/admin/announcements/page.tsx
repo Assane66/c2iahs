@@ -11,49 +11,46 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CloudinaryImageUpload } from '@/components/cloudinary-upload';
-import { PlusCircle, Trash2, CalendarDays, MapPin } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 
-type EventItem = {
+type Announcement = {
   id: string;
   title: string;
+  content?: string;
   date?: string;
-  location?: string;
-  description?: string;
   images?: string[];
 };
 
-export default function AdminEventsPage() {
-  const [events, setEvents] = useState<EventItem[]>([]);
+export default function AdminAnnouncementsPage() {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const { toast } = useToast();
 
-  const fetchEvents = async () => {
+  const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const snapshot = await getDocs(query(collection(db, 'events'), orderBy('createdAt', 'desc')));
-      setEvents(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as EventItem[]);
+      const snapshot = await getDocs(query(collection(db, 'announcements'), orderBy('createdAt', 'desc')));
+      setAnnouncements(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Announcement[]);
     } catch (error) {
-      console.error('Erreur chargement événements:', error);
-      toast({ title: 'Erreur', description: 'Impossible de charger les événements.', variant: 'destructive' });
+      console.error('Erreur chargement annonces:', error);
+      toast({ title: 'Erreur', description: 'Impossible de charger les annonces.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEvents();
+    fetchAnnouncements();
   }, []);
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const title = (form.elements.namedItem('title') as HTMLInputElement).value.trim();
-    const date = (form.elements.namedItem('date') as HTMLInputElement).value;
-    const location = (form.elements.namedItem('location') as HTMLInputElement).value.trim();
-    const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value.trim();
+    const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value.trim();
 
     if (!title) {
       toast({ title: 'Titre requis', description: 'Veuillez saisir au moins le titre.', variant: 'destructive' });
@@ -62,22 +59,21 @@ export default function AdminEventsPage() {
 
     setSaving(true);
     try {
-      await addDoc(collection(db, 'events'), {
+      await addDoc(collection(db, 'announcements'), {
         title,
-        date: date || '',
-        location: location || '',
-        description: description || '',
+        content: content || '',
+        date: new Date().toLocaleDateString('fr-FR'),
         images: images,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      toast({ title: 'Événement ajouté', description: title + ' est programmé.' });
+      toast({ title: 'Annonce publiée', description: title + ' est visible sur le site.' });
       form.reset();
       setImages([]);
       setOpen(false);
-      fetchEvents();
+      fetchAnnouncements();
     } catch (error) {
-      console.error('Erreur ajout événement:', error);
+      console.error('Erreur ajout annonce:', error);
       toast({ title: 'Erreur', description: String(error), variant: 'destructive' });
     } finally {
       setSaving(false);
@@ -86,9 +82,9 @@ export default function AdminEventsPage() {
 
   const handleDelete = async (id: string, title: string) => {
     try {
-      await deleteDoc(doc(db, 'events', id));
+      await deleteDoc(doc(db, 'announcements', id));
       toast({ title: 'Supprimé', description: title + ' a été retiré.' });
-      fetchEvents();
+      fetchAnnouncements();
     } catch (error) {
       console.error('Erreur suppression:', error);
       toast({ title: 'Erreur', description: String(error), variant: 'destructive' });
@@ -99,41 +95,31 @@ export default function AdminEventsPage() {
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des Événements</h1>
-          <p className="text-muted-foreground">Planifiez les cérémonies, conférences et journées portes ouvertes.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Gestion des Annonces</h1>
+          <p className="text-muted-foreground">Publiez les communications officielles de l&apos;établissement.</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setImages([]); }}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-white">
-              <PlusCircle className="mr-2 h-4 w-4" /> Nouvel événement
+              <PlusCircle className="mr-2 h-4 w-4" /> Nouvelle Annonce
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
-              <DialogTitle>Ajouter un événement</DialogTitle>
+              <DialogTitle>Publier une Annonce</DialogTitle>
               <DialogDescription>Seul le titre est obligatoire.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAdd} className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">Titre *</Label>
-                <Input id="title" name="title" placeholder="Ex: Cérémonie de fin d'année" required />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="date">Date (optionnel)</Label>
-                  <Input id="date" name="date" type="date" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="location">Lieu (optionnel)</Label>
-                  <Input id="location" name="location" placeholder="Ex: Grande Salle" />
-                </div>
+                <Label htmlFor="title">Titre de l&apos;annonce *</Label>
+                <Input id="title" name="title" placeholder="Ex: Réunion des parents..." required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description (optionnel)</Label>
-                <Textarea id="description" name="description" rows={3} />
+                <Label htmlFor="content">Contenu (optionnel)</Label>
+                <Textarea id="content" name="content" placeholder="Détails de l'annonce..." rows={4} />
               </div>
               <div className="grid gap-2">
-                <Label>Photos (optionnel)</Label>
+                <Label>Images (optionnel)</Label>
                 <CloudinaryImageUpload value={images} onChange={setImages} multiple={true} maxFiles={4} />
               </div>
               <DialogFooter>
@@ -149,38 +135,27 @@ export default function AdminEventsPage() {
       <div className="grid gap-4">
         {loading ? (
           <div className="rounded-3xl border border-dashed border-slate-300 p-12 text-center text-slate-500">Chargement...</div>
-        ) : events.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-300 p-12 text-center text-slate-500">Aucun événement programmé.</div>
+        ) : announcements.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-300 p-12 text-center text-slate-500">Aucune annonce publiée.</div>
         ) : (
-          events.map((event) => (
-            <Card key={event.id} className="rounded-2xl">
+          announcements.map((item) => (
+            <Card key={item.id} className="rounded-2xl">
               <CardHeader className="flex flex-row items-start justify-between gap-4 p-6 pb-2">
                 <div>
-                  <CardTitle className="text-xl font-bold">{event.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                    {event.date && (
-                      <span className="flex items-center gap-1 font-semibold text-emerald-700">
-                        <CalendarDays className="h-3.5 w-3.5" /> {event.date}
-                      </span>
-                    )}
-                    {event.location && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5" /> {event.location}
-                      </span>
-                    )}
-                  </div>
+                  <CardTitle className="text-xl font-bold">{item.title}</CardTitle>
+                  {item.date && <CardDescription className="text-xs text-emerald-600 font-semibold">{item.date}</CardDescription>}
                 </div>
-                <Button variant="ghost" size="sm" className="text-rose-600 hover:bg-rose-50" onClick={() => handleDelete(event.id, event.title)}>
+                <Button variant="ghost" size="sm" className="text-rose-600 hover:bg-rose-50" onClick={() => handleDelete(item.id, item.title)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </CardHeader>
               <CardContent className="p-6 pt-2 space-y-4">
-                {event.description && <p className="text-sm text-slate-700">{event.description}</p>}
-                {event.images && event.images.length > 0 && (
+                {item.content && <p className="text-sm text-slate-700 whitespace-pre-line">{item.content}</p>}
+                {item.images && item.images.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {event.images.map((imgUrl, idx) => (
+                    {item.images.map((imgUrl, idx) => (
                       <div key={idx} className="h-24 w-24 rounded-xl overflow-hidden border border-slate-200">
-                        <img src={imgUrl} alt="Event photo" className="h-full w-full object-cover" />
+                        <img src={imgUrl} alt="Annonce photo" className="h-full w-full object-cover" />
                       </div>
                     ))}
                   </div>
