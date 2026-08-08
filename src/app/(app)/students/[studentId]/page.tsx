@@ -189,11 +189,39 @@ export default function StudentDetailsPage() {
   const paidCount = schoolMonths.filter((m) => payments[m.value]?.status === 'Payé').length;
   const totalMonthsCount = schoolMonths.length;
 
-  const handlePrintCard = () => {
+  const handlePrintCard = async () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow || !student) return;
 
     const logoUrl = 'https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg';
+    
+    // Ensure QR Code URL exists
+    let finalQrUrl = qrCodeUrl;
+    if (!finalQrUrl) {
+      try {
+        const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://c2iahs.com';
+        const scanUrl = `${currentOrigin}/scan/${studentId}`;
+        finalQrUrl = await QRCode.toDataURL(scanUrl, { margin: 1, width: 220 });
+      } catch (err) {
+        console.error('Erreur QR Code:', err);
+      }
+    }
+
+    // Convert logo to Base64 to ensure instant rendering without network lag
+    let base64Logo = logoUrl;
+    try {
+      const res = await fetch(logoUrl);
+      const blob = await res.blob();
+      base64Logo = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(logoUrl);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.warn('Fallback URL logo:', e);
+    }
+
     const className = studentClass?.name || 'N/A';
 
     const html = `
@@ -207,7 +235,14 @@ export default function StudentDetailsPage() {
             size: 85mm 55mm;
             margin: 0;
           }
-          * { box-sizing: border-box; margin: 0; padding: 0; }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: #ffffff;
@@ -215,8 +250,6 @@ export default function StudentDetailsPage() {
             width: 85mm;
             height: 55mm;
             overflow: hidden;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
           }
           .card-wrapper {
             width: 85mm;
@@ -230,8 +263,8 @@ export default function StudentDetailsPage() {
             position: relative;
           }
           .card-header {
-            background: #047857;
-            color: #ffffff;
+            background: #047857 !important;
+            color: #ffffff !important;
             padding: 1.8mm 2.5mm;
             display: flex;
             align-items: center;
@@ -259,12 +292,12 @@ export default function StudentDetailsPage() {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: #ffffff;
+            color: #ffffff !important;
           }
           .card-title {
             font-size: 4.8pt;
             font-weight: 700;
-            color: #a7f3d0;
+            color: #a7f3d0 !important;
             letter-spacing: 0.3px;
             text-transform: uppercase;
           }
@@ -340,7 +373,7 @@ export default function StudentDetailsPage() {
           }
           .card-footer {
             height: 4mm;
-            background: #f1f5f9;
+            background: #f1f5f9 !important;
             border-top: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
@@ -351,11 +384,33 @@ export default function StudentDetailsPage() {
             font-weight: 600;
           }
         </style>
+        <script>
+          function autoPrint() {
+            const images = Array.from(document.images);
+            let loaded = 0;
+            if (images.length === 0) {
+              setTimeout(() => { window.print(); }, 200);
+              return;
+            }
+            images.forEach(img => {
+              if (img.complete && img.naturalWidth !== 0) {
+                loaded++;
+                if (loaded >= images.length) setTimeout(() => { window.print(); }, 300);
+              } else {
+                img.onload = img.onerror = () => {
+                  loaded++;
+                  if (loaded >= images.length) setTimeout(() => { window.print(); }, 300);
+                };
+              }
+            });
+          }
+          window.addEventListener('load', autoPrint);
+        </script>
       </head>
       <body>
         <div class="card-wrapper">
           <div class="card-header">
-            <img src="${logoUrl}" class="card-logo" alt="Logo" />
+            <img src="${base64Logo}" class="card-logo" alt="Logo" />
             <div class="card-header-text">
               <div class="school-name">CENTRE ISLAMIQUE AL HOUSSEYNOU SOW</div>
               <div class="card-title">CARTE D'ÉLÈVE OFFICIELLE</div>
@@ -385,7 +440,7 @@ export default function StudentDetailsPage() {
               </div>
             </div>
             <div class="card-qr-box">
-              <img src="${qrCodeUrl}" class="qr-img" alt="QR Code" />
+              <img src="${finalQrUrl}" class="qr-img" alt="QR Code" />
               <div class="qr-label">SCANNER QR</div>
             </div>
           </div>
@@ -400,7 +455,9 @@ export default function StudentDetailsPage() {
     printWindow.document.write(html);
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.print();
+    }, 600);
   };
 
   const handleExportStudent = () => {

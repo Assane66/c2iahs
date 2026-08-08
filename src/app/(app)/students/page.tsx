@@ -252,6 +252,21 @@ export default function StudentsPage() {
       const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://c2iahs.com';
       const logoUrl = 'https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg';
 
+      // Convert logo to Base64 to avoid network loading delay in print popup
+      let base64Logo = logoUrl;
+      try {
+        const res = await fetch(logoUrl);
+        const blob = await res.blob();
+        base64Logo = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = () => resolve(logoUrl);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        console.warn('Fallback logo URL:', e);
+      }
+
       // Generate QR code for each student
       const cardsData = await Promise.all(
         targetStudents.map(async (student) => {
@@ -269,7 +284,7 @@ export default function StudentsPage() {
       const renderCardHtml = (item: typeof cardsData[0]) => `
         <div class="card-wrapper">
           <div class="card-header">
-            <img src="${logoUrl}" class="card-logo" alt="Logo" />
+            <img src="${base64Logo}" class="card-logo" alt="Logo" />
             <div class="card-header-text">
               <div class="school-name">CENTRE ISLAMIQUE AL HOUSSEYNOU SOW</div>
               <div class="card-title">CARTE D'ÉLÈVE OFFICIELLE</div>
