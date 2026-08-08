@@ -193,44 +193,204 @@ export default function StudentDetailsPage() {
     const printWindow = window.open('', '_blank');
     if (!printWindow || !student) return;
 
+    const logoUrl = 'https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg';
+    const className = studentClass?.name || 'N/A';
+
     const html = `
-      <html>
+      <!DOCTYPE html>
+      <html lang="fr">
       <head>
-        <title>Carte élève - ${student.matricule}</title>
+        <meta charset="UTF-8">
+        <title>Carte Élève - ${student.matricule}</title>
         <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 24px; color: #1e293b; }
-          .card { width: 360px; border: 2px solid #0b573a; padding: 20px; border-radius: 20px; background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-          .header { text-align: center; margin-bottom: 16px; border-bottom: 1px border-slate-200; padding-bottom: 12px; }
-          .logo { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin: 0 auto 8px; border: 1px solid #e2e8f0; }
-          .title { font-size: 16px; font-weight: 800; color: #0b573a; margin-bottom: 2px; }
-          .subtitle { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: 600; }
-          .status-badge { display: inline-block; background: #dcfce7; color: #15803d; font-size: 10px; font-weight: bold; padding: 3px 12px; border-radius: 9999px; }
-          .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 4px; }
-          .label { color: #64748b; font-size: 12px; }
-          .value { color: #0f172a; font-weight: 700; }
-          .qr-container { text-align: center; margin-top: 16px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; }
-          .qr { width: 120px; height: 120px; object-fit: cover; margin: 0 auto; }
-          .bilan { font-size: 11px; font-weight: 700; color: #0b573a; margin-top: 6px; }
+          @page {
+            size: 85mm 55mm;
+            margin: 0;
+          }
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+            width: 85mm;
+            height: 55mm;
+            overflow: hidden;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .card-wrapper {
+            width: 85mm;
+            height: 55mm;
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 3.5mm;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+          }
+          .card-header {
+            background: #047857;
+            color: #ffffff;
+            padding: 1.8mm 2.5mm;
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            height: 11.5mm;
+          }
+          .card-logo {
+            width: 7.8mm;
+            height: 7.8mm;
+            border-radius: 1.5mm;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.6);
+            background: #ffffff;
+            flex-shrink: 0;
+          }
+          .card-header-text {
+            flex: 1;
+            overflow: hidden;
+          }
+          .school-name {
+            font-size: 5.8pt;
+            font-weight: 800;
+            letter-spacing: 0.1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+          }
+          .card-title {
+            font-size: 4.8pt;
+            font-weight: 700;
+            color: #a7f3d0;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+          }
+          .card-body {
+            flex: 1;
+            padding: 2mm 2.5mm 1mm 2.5mm;
+            display: flex;
+            gap: 2mm;
+            align-items: center;
+          }
+          .card-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8mm;
+            overflow: hidden;
+          }
+          .info-row {
+            display: flex;
+            align-items: baseline;
+            gap: 1mm;
+            line-height: 1.1;
+          }
+          .info-label {
+            font-size: 5pt;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+          }
+          .info-val {
+            font-size: 6pt;
+            font-weight: 700;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .info-val.matricule {
+            color: #047857;
+            font-family: monospace;
+            font-size: 6.8pt;
+            font-weight: 800;
+          }
+          .info-val.name {
+            font-size: 6.5pt;
+            font-weight: 800;
+            color: #0f172a;
+          }
+          .card-qr-box {
+            width: 22mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5mm;
+            padding: 1mm;
+            flex-shrink: 0;
+          }
+          .qr-img {
+            width: 19mm;
+            height: 19mm;
+            object-fit: contain;
+          }
+          .qr-label {
+            font-size: 3.8pt;
+            font-weight: 800;
+            color: #047857;
+            text-align: center;
+            margin-top: 0.5mm;
+            letter-spacing: 0.1px;
+          }
+          .card-footer {
+            height: 4mm;
+            background: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 2mm;
+            font-size: 4.2pt;
+            color: #475569;
+            font-weight: 600;
+          }
         </style>
       </head>
       <body>
-        <div class="card">
-          <div class="header">
-            <img class="logo" src="https://res.cloudinary.com/dm6yuokre/image/upload/v1762822007/IMG-20250924-WA0009_1_psprih.jpg" alt="Logo" />
-            <div class="title">Centre Islamique Al Housseynou Sow</div>
-            <div class="subtitle">Carte d'Élève Officielle ${new Date().getFullYear()}</div>
-            <div class="status-badge">ÉLÈVE ACTIF — INSCRIT</div>
+        <div class="card-wrapper">
+          <div class="card-header">
+            <img src="${logoUrl}" class="card-logo" alt="Logo" />
+            <div class="card-header-text">
+              <div class="school-name">CENTRE ISLAMIQUE AL HOUSSEYNOU SOW</div>
+              <div class="card-title">CARTE D'ÉLÈVE OFFICIELLE</div>
+            </div>
           </div>
-          <div class="row"><span class="label">Matricule</span><span class="value">${student.matricule}</span></div>
-          <div class="row"><span class="label">Nom & Prénom</span><span class="value">${student.firstName} ${student.lastName}</span></div>
-          <div class="row"><span class="label">Classe</span><span class="value">${studentClass?.name || 'N/A'}</span></div>
-          <div class="row"><span class="label">Date de Naissance</span><span class="value">${student.dob}</span></div>
-          <div class="row"><span class="label">Lieu</span><span class="value">${student.pob || 'N/A'}</span></div>
-          <div class="row"><span class="label">Tél. Parent</span><span class="value">${student.parentPhone || 'N/A'}</span></div>
-          <div class="qr-container">
-            <img class="qr" src="${qrCodeUrl}" alt="QR Code" />
-            <div class="bilan">Bilan Scolarité : ${paidCount} / ${totalMonthsCount} mois réglés</div>
-            <div style="font-size: 9px; color: #64748b; margin-top: 2px;">Scanner avec un téléphone pour vérifier le statut direct</div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="info-row">
+                <span class="info-label">Matricule:</span>
+                <span class="info-val matricule">${student.matricule}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Nom & Prénom:</span>
+                <span class="info-val name">${student.firstName} ${student.lastName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Classe:</span>
+                <span class="info-val">${className}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Né(e) le:</span>
+                <span class="info-val">${student.dob || 'N/A'}${student.pob ? ` à ${student.pob}` : ''}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Tél. Parent:</span>
+                <span class="info-val">${student.parentPhone || 'N/A'}</span>
+              </div>
+            </div>
+            <div class="card-qr-box">
+              <img src="${qrCodeUrl}" class="qr-img" alt="QR Code" />
+              <div class="qr-label">SCANNER QR</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span>Tivaouane Peulh, QRT Bayal Ba • C2IAHS</span>
           </div>
         </div>
       </body>
