@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
-import { PlusCircle, Search, Trash2, Download, Eye, Printer, Loader2 } from 'lucide-react';
+import { PlusCircle, Search, Trash2, Download, Eye, Printer, Loader2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportJsonToExcel } from '@/lib/export';
 import { logAuditAction } from '@/lib/audit';
+import { StudentImportDialog } from '@/components/student-import-dialog';
 import QRCode from 'qrcode';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -75,6 +76,7 @@ export default function StudentsPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [printingBatch, setPrintingBatch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -574,6 +576,15 @@ export default function StudentsPage() {
             Imprimer Cartes (8/A4) {selectedIds.length > 0 && `(${selectedIds.length})`}
           </Button>
 
+          <Button
+            variant="outline"
+            className="hidden sm:inline-flex border-emerald-600 text-emerald-800 hover:bg-emerald-50"
+            onClick={() => setImportOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4 text-emerald-700" />
+            Importer Excel/CSV
+          </Button>
+
           <Button variant="outline" className="hidden sm:inline-flex border-slate-300 text-slate-800 hover:bg-slate-50" onClick={handleExportStudents}>
             <Download className="mr-2 h-4 w-4" />Exporter Excel
           </Button>
@@ -730,6 +741,12 @@ export default function StudentsPage() {
           </Table>
         </CardContent>
       </Card>
+      <StudentImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        classes={classes}
+        onImportSuccess={fetchStudentsAndClasses}
+      />
     </div>
   );
 }

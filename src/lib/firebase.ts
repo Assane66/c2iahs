@@ -1,7 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,4 +22,17 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { app, auth, db };
+export async function createSecondaryAuthUser(email: string, pass: string) {
+  const secondaryAppName = "SecondaryAppAuth";
+  let secondaryApp = getApps().find((a) => a.name === secondaryAppName);
+  if (!secondaryApp) {
+    secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+  }
+  const secondaryAuth = getAuth(secondaryApp);
+  const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+  await signOut(secondaryAuth);
+  return userCred.user;
+}
+
+export { app, auth, db, firebaseConfig };
+
